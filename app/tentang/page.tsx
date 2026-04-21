@@ -1,67 +1,125 @@
+import ProtectedPage from '@/components/ProtectedPage'
+
 export default function TentangPage() {
   return (
-    <div className="p-8 max-w-2xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-800">Tentang Kami</h1>
-        <p className="text-slate-500 mt-1 text-sm">Informasi aplikasi dan pengembang</p>
-      </div>
-
-      <div className="space-y-5">
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-indigo-500 flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-slate-800">SPK SAW — Sistem Penunjang Keputusan</h2>
-              <p className="text-xs text-slate-400">Versi 1.0.0</p>
-            </div>
+    <ProtectedPage>
+      <div className="p-8 max-w-4xl">
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+              Tentang Aplikasi
+            </span>
           </div>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            Aplikasi ini dikembangkan untuk membantu pengambilan keputusan akademik menggunakan
-            metode <strong>Simple Additive Weighting (SAW)</strong>. Tujuan utamanya adalah meranking
-            mata kuliah berdasarkan performa semester sehingga dapat memberikan rekomendasi yang
-            objektif dan terukur.
+          <h1 className="text-2xl font-bold text-slate-800">Sistem Penunjang Keputusan SAW</h1>
+          <p className="text-slate-500 mt-2 text-sm leading-relaxed">
+            Sistem ini dirancang untuk memberikan rekomendasi pemilihan alternatif terbaik. Dibangun menggunakan algoritma matematis <strong>Simple Additive Weighting (SAW)</strong>, sistem ini mengukur berbagai kriteria untuk menghasilkan leaderboard yang objektif.
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-          <h3 className="text-sm font-semibold text-slate-700 mb-4">Stack Teknologi</h3>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { nama: 'Next.js 14', desc: 'App Router + Server Components', color: 'bg-black text-white' },
-              { nama: 'Tailwind CSS', desc: 'Utility-first CSS framework', color: 'bg-sky-500 text-white' },
-              { nama: 'Supabase', desc: 'PostgreSQL Backend-as-a-Service', color: 'bg-emerald-500 text-white' },
-              { nama: 'TypeScript', desc: 'Type-safe JavaScript', color: 'bg-blue-600 text-white' },
-            ].map((tech) => (
-              <div key={tech.nama} className="flex items-center gap-3 bg-slate-50 rounded-xl p-3 border border-slate-100">
-                <span className={`text-xs font-bold px-2 py-1 rounded-lg ${tech.color}`}>{tech.nama}</span>
-                <span className="text-xs text-slate-500">{tech.desc}</span>
+        <div className="space-y-6">
+          {/* Tentang Aplikasi */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-indigo-500 flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
               </div>
-            ))}
+              <div>
+                <h2 className="text-base font-bold text-slate-800">SPK SAW — Sistem Penunjang Keputusan</h2>
+                <p className="text-xs text-slate-400">Versi 1.0.0</p>
+              </div>
+            </div>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              Aplikasi ini dikembangkan untuk membantu pengambilan keputusan menggunakan metode <strong>Simple Additive Weighting (SAW)</strong>. Tujuan utamanya adalah memberikan rekomendasi yang objektif dan terukur berdasarkan multiple criteria decision making (MCDM).
+            </p>
           </div>
-        </div>
 
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-          <h3 className="text-sm font-semibold text-slate-700 mb-3">Kriteria SAW yang Digunakan</h3>
-          <div className="space-y-2 text-sm text-slate-600">
-            <div className="flex items-center gap-3">
-              <span className="font-mono font-bold text-indigo-600 w-8">C1</span>
-              <span>Range Nilai Semester 3 — Bobot: <strong>0.5</strong></span>
+          {/* Fitur Utama */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <h3 className="text-base font-bold text-slate-800 mb-4">Fitur Utama</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                {
+                  judul: 'Kelola Kriteria',
+                  desc: 'Tambah, edit, dan hapus kriteria beserta bobot penilaiannya secara dinamis',
+                  icon: '⚙️',
+                },
+                {
+                  judul: 'Kelola Alternatif',
+                  desc: 'Atur daftar alternatif/opsi yang akan dievaluasi dalam sistem',
+                  icon: '📋',
+                },
+                {
+                  judul: 'Matriks Penilaian',
+                  desc: 'Masukkan skor untuk setiap alternatif pada masing-masing kriteria',
+                  icon: '📊',
+                },
+                {
+                  judul: 'Laporan Hasil',
+                  desc: 'Lihat hasil perhitungan SAW dengan detail normalisasi dan final score',
+                  icon: '📈',
+                },
+              ].map((fitur) => (
+                <div key={fitur.judul} className="flex gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                  <div className="text-2xl">{fitur.icon}</div>
+                  <div>
+                    <h4 className="font-semibold text-slate-800 text-sm">{fitur.judul}</h4>
+                    <p className="text-xs text-slate-600 mt-1">{fitur.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="flex items-center gap-3">
-              <span className="font-mono font-bold text-indigo-600 w-8">C2</span>
-              <span>Range Kesulitan — Bobot: <strong>0.2</strong></span>
+          </div>
+
+          {/* Stack Teknologi */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <h3 className="text-base font-bold text-slate-800 mb-4">Stack Teknologi</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { nama: 'Next.js 14', desc: 'React Framework', color: 'bg-black text-white' },
+                { nama: 'TypeScript', desc: 'Type Safety', color: 'bg-blue-600 text-white' },
+                { nama: 'Tailwind CSS', desc: 'Styling', color: 'bg-cyan-500 text-white' },
+                { nama: 'Supabase', desc: 'Backend', color: 'bg-emerald-600 text-white' },
+              ].map((tech) => (
+                <div key={tech.nama} className="bg-slate-50 rounded-xl p-3 border border-slate-100 text-center">
+                  <p className={`text-xs font-bold px-2 py-1 rounded-lg ${tech.color} inline-block`}>
+                    {tech.nama}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-2">{tech.desc}</p>
+                </div>
+              ))}
             </div>
-            <div className="flex items-center gap-3">
-              <span className="font-mono font-bold text-indigo-600 w-8">C3</span>
-              <span>Bobot SKS — Bobot: <strong>0.3</strong></span>
+          </div>
+
+          {/* Algoritma SAW */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <h3 className="text-base font-bold text-slate-800 mb-4">Algoritma Simple Additive Weighting (SAW)</h3>
+            <div className="space-y-3 text-sm text-slate-600">
+              <p>
+                SAW merupakan salah satu metode pengambilan keputusan multi-kriteria yang paling sederhana dan paling sering digunakan. Langkah-langkahnya:
+              </p>
+              <ol className="list-decimal list-inside space-y-2 ml-2">
+                <li><strong>Normalisasi Matriks:</strong> Ubah nilai mentah menjadi nilai normalisasi (0-1)</li>
+                <li><strong>Pembobotan:</strong> Kalikan setiap nilai normalisasi dengan bobot kriteria</li>
+                <li><strong>Penjumlahan:</strong> Jumlahkan semua hasil perkalian untuk mendapat skor akhir</li>
+                <li><strong>Ranking:</strong> Urutkan alternatif berdasarkan skor akhir tertinggi</li>
+              </ol>
             </div>
+          </div>
+
+          {/* Kontak & Support */}
+          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl border border-indigo-100 p-6">
+            <h3 className="text-base font-bold text-slate-800 mb-2">Pertanyaan atau Umpan Balik?</h3>
+            <p className="text-sm text-slate-600 mb-4">
+              Kami terus mengembangkan sistem ini untuk memberikan pengalaman terbaik. Jika Anda memiliki saran atau menemukan bug, silakan hubungi tim pengembang.
+            </p>
+            <p className="text-xs text-slate-500">
+              © 2026 SPK SAW System — Semua hak dilindungi. Dikembangkan dengan ❤️ untuk pengambilan keputusan yang lebih baik.
+            </p>
           </div>
         </div>
       </div>
-    </div>
+    </ProtectedPage>
   )
 }
