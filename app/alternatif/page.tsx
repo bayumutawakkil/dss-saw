@@ -23,6 +23,7 @@ export default function AlternatifPage() {
   const [editingItem, setEditingItem] = useState<Alternatif | null>(null)
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showFormModal, setShowFormModal] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<Alternatif | null>(null)
 
   const loadAlternatif = async () => {
@@ -82,14 +83,23 @@ export default function AlternatifPage() {
       />
 
       <div className="px-8 pb-8">
-        {/* Form Tambah/Edit */}
-        <AlternatifForm
-          onSuccess={() => {
-            loadAlternatif()
-            setEditingItem(null)
-          }}
-          editingItem={editingItem}
-        />
+        {/* Button Tambah Alternatif */}
+        <div className="mb-6 flex justify-end">
+          <Button
+            variant="primary"
+            onClick={() => {
+              setEditingItem(null)
+              setShowFormModal(true)
+            }}
+            icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            }
+          >
+            Tambah Mata Kuliah
+          </Button>
+        </div>
 
         {/* Data Alternatif */}
         <Card>
@@ -155,7 +165,10 @@ export default function AlternatifPage() {
                           <Button
                             size="sm"
                             variant="secondary"
-                            onClick={() => setEditingItem(a)}
+                            onClick={() => {
+                              setEditingItem(a)
+                              setShowFormModal(true)
+                            }}
                             icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>}
                           >
                             Edit
@@ -211,6 +224,28 @@ export default function AlternatifPage() {
           type="warning"
           message="Tindakan ini tidak dapat dibatalkan dan akan menghapus semua penilaian terkait alternatif ini."
         />
+      </Modal>
+
+      {/* Form Modal */}
+      <Modal
+        isOpen={showFormModal}
+        onClose={() => {
+          setShowFormModal(false)
+          setEditingItem(null)
+        }}
+        title={editingItem ? 'Edit Mata Kuliah' : 'Tambah Mata Kuliah Baru'}
+        size="sm"
+      >
+        <div className="max-h-[70vh] overflow-y-auto">
+          <AlternatifForm
+            onSuccess={() => {
+              loadAlternatif()
+              setEditingItem(null)
+              setShowFormModal(false)
+            }}
+            editingItem={editingItem}
+          />
+        </div>
       </Modal>
     </ProtectedPage>
   )

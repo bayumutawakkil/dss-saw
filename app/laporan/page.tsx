@@ -216,8 +216,13 @@ export default function LaporanPage() {
 
           {showNormalized && (
             <div className="space-y-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700">
-                <strong>Rumus Benefit:</strong> R = Nilai Mentah ÷ Nilai Maksimal
+              <div className="space-y-2">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-900">
+                  <strong>Rumus Benefit:</strong> R<sub>ij</sub> = Nilai Mentah ÷ Nilai Maksimal
+                </div>
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-sm text-orange-900">
+                  <strong>Rumus Cost:</strong> R<sub>ij</sub> = Nilai Minimal ÷ Nilai Mentah
+                </div>
               </div>
 
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
@@ -237,9 +242,9 @@ export default function LaporanPage() {
                     <tbody className="divide-y divide-slate-100">
                       {results.map((r) => (
                         <tr key={r.alternatifId} className="hover:bg-slate-50">
-                          <td className="px-5 py-3 font-medium text-slate-800">{r.alternatifName}</td>
+                          <td className="px-5 py-3 font-medium text-slate-900">{r.alternatifName}</td>
                           {r.normalizedScores.map((score, idx) => (
-                            <td key={idx} className="px-4 py-3 text-center text-sm">
+                            <td key={idx} className="px-4 py-3 text-center text-sm text-slate-900 font-medium">
                               {score.toFixed(2)}
                             </td>
                           ))}
@@ -318,12 +323,12 @@ export default function LaporanPage() {
 
                         return (
                           <tr key={r.alternatifId} className="hover:bg-slate-50">
-                            <td className="px-5 py-3 font-semibold text-slate-800">
+                            <td className="px-5 py-3 font-semibold text-slate-900">
                               {r.rank <= 3 ? medals[r.rank - 1] : r.rank}
                             </td>
-                            <td className="px-5 py-3 font-medium text-slate-800">{r.alternatifName}</td>
-                            <td className="px-5 py-3 text-xs font-mono text-slate-600">{calcStr}</td>
-                            <td className="px-5 py-3 text-center font-bold text-indigo-600">
+                            <td className="px-5 py-3 font-medium text-slate-900">{r.alternatifName}</td>
+                            <td className="px-5 py-3 text-xs font-mono text-slate-900">{calcStr}</td>
+                            <td className="px-5 py-3 text-center font-bold text-indigo-700">
                               {r.finalScore.toFixed(2)}
                             </td>
                           </tr>
