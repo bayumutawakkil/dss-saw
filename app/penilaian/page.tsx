@@ -212,7 +212,7 @@ export default function PenilaianPage() {
                                 value={nilai || ''}
                                 onChange={(e) => handleChangeScore(alt.id, k.id, e.target.value)}
                                 placeholder="0"
-                                className="w-full px-2 py-1.5 border border-slate-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-center text-sm font-semibold transition-all"
+                                className="w-full px-2 py-1.5 border border-slate-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-center text-sm font-semibold text-slate-900 placeholder-slate-400 transition-all"
                               />
                             </td>
                           )

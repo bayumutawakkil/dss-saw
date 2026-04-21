@@ -12,17 +12,26 @@ const supabase = createClient(
 
 interface AuthContextType {
   user: User | null
+  isGuest: boolean
   loading: boolean
   signOut: () => Promise<void>
+  loginAsGuest: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [isGuest, setIsGuest] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Check stored guest status
+    const storedGuestStatus = localStorage.getItem('isGuest')
+    if (storedGuestStatus === 'true') {
+      setIsGuest(true)
+    }
+
     // Check active session
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
@@ -44,10 +53,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut()
     setUser(null)
+    setIsGuest(false)
+    localStorage.removeItem('isGuest')
+  }
+
+  const loginAsGuest = () => {
+    setIsGuest(true)
+    localStorage.setItem('isGuest', 'true')
+    setLoading(false)
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signOut }}>
+    <AuthContext.Provider value={{ user, isGuest, loading, signOut, loginAsGuest }}>
       {children}
     </AuthContext.Provider>
   )

@@ -38,13 +38,17 @@ export function hitungNormalisasi(
     } else {
       // cost - untuk cost, nilai lebih kecil lebih baik
       // R_ij = min(X_j) / X_ij
-      // Jika ada nilai 0, gunakan nilai positif terkecil sebagai minimum
+      // Jika semua nilai 0, maka normalisasi = 0
       const nilaiPositif = nilaiKolom.filter(v => v > 0)
-      const minNilai = nilaiPositif.length > 0 ? Math.min(...nilaiPositif) : 1
+      const minNilai = nilaiPositif.length > 0 ? Math.min(...nilaiPositif) : 0
       
       normalized.forEach((m) => {
         const v = m.nilai[kId] ?? 0
-        m.nilai[kId] = v === 0 ? 0 : minNilai / v
+        if (minNilai === 0 || v === 0) {
+          m.nilai[kId] = 0
+        } else {
+          m.nilai[kId] = minNilai / v
+        }
       })
     }
   }

@@ -116,8 +116,8 @@ export default function KriteriaPage() {
               </h3>
               <p className={`text-sm mt-1 ${isBobotValid ? 'text-emerald-700' : 'text-amber-700'}`}>
                 {isBobotValid 
-                  ? '✓ Semua kriteria sudah terkonfigurasi dengan valid. Total bobot = 1.00'
-                  : '⚠ Jumlah bobot kriteria harus tepat 1.00 untuk perhitungan yang akurat'}
+                  ? 'Semua kriteria sudah terkonfigurasi dengan valid. Total bobot = 1.00'
+                  : 'Jumlah bobot kriteria harus tepat 1.00 untuk perhitungan yang akurat'}
               </p>
             </div>
           </div>

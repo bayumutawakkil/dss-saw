@@ -80,46 +80,54 @@ const navItems: NavItem[] = [
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const { user, loading } = useAuth()
+  const { user, isGuest, loading, signOut } = useAuth()
   const router = useRouter()
+
+  // Guest allowed routes
+  const guestAllowedRoutes = ['/', '/laporan', '/penilaian', '/leaderboard', '/tentang']
 
   // Redirect to login if not authenticated and not on auth pages
   useEffect(() => {
-    if (!loading && !user && !pathname.startsWith('/auth')) {
+    if (!loading && !user && !isGuest && !pathname.startsWith('/auth')) {
       router.push('/auth/login')
     }
-  }, [user, loading, pathname, router])
+  }, [user, isGuest, loading, pathname, router])
 
   // Don't show sidebar on auth pages
   if (pathname.startsWith('/auth')) {
     return null
   }
 
+  // Filter nav items based on user type
+  const filteredNavItems = isGuest 
+    ? navItems.filter(item => guestAllowedRoutes.includes(item.href))
+    : navItems
+
   return (
-    <aside className="flex flex-col w-64 min-h-screen bg-slate-900 text-white shadow-xl">
+    <aside className="sticky top-0 h-screen flex flex-col w-64 bg-gradient-to-b from-blue-900 to-blue-950 text-white shadow-xl overflow-y-auto">
       {/* Logo / Judul */}
-      <div className="px-6 py-6 border-b border-slate-700">
+      <div className="px-6 py-6 border-b border-blue-800">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-indigo-500 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center shrink-0">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
             </svg>
           </div>
           <div>
             <p className="text-sm font-bold leading-tight tracking-wide text-white">SPK SAW</p>
-            <p className="text-[11px] text-slate-400 leading-tight">Sistem Penunjang Keputusan</p>
+            <p className="text-[11px] text-blue-300 leading-tight">Sistem Penunjang Keputusan</p>
           </div>
         </div>
       </div>
 
       {/* Label seksi */}
       <div className="px-6 pt-5 pb-2">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">Menu Utama</p>
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-blue-400">Menu Utama</p>
       </div>
 
       {/* Navigasi */}
       <nav className="flex-1 px-3 space-y-1">
-        {navItems.map((item) => {
+        {filteredNavItems.map((item) => {
           const isActive =
             item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
 
@@ -129,11 +137,11 @@ export default function Sidebar() {
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                 isActive
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/40'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-md'
+                  : 'text-blue-300 hover:bg-blue-800/50 hover:text-cyan-300'
               }`}
             >
-              <span className={isActive ? 'text-white' : 'text-slate-500'}>{item.icon}</span>
+              <span className={isActive ? 'text-cyan-300' : 'text-blue-400'}>{item.icon}</span>
               {item.label}
             </Link>
           )
@@ -141,22 +149,47 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer sidebar */}
-      <div className="px-6 py-4 border-t border-slate-700">
+      <div className="px-6 py-4 border-t border-blue-800">
         {loading ? (
-          <div className="text-xs text-slate-400">Loading...</div>
+          <div className="text-xs text-blue-400">Loading...</div>
+        ) : isGuest ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-500/50 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-cyan-300 truncate">
+                  Tamu
+                </p>
+                <p className="text-[10px] text-blue-400 truncate">Guest User</p>
+              </div>
+            </div>
+            <button
+              onClick={async () => {
+                await signOut()
+                router.push('/auth/login')
+              }}
+              className="w-full px-3 py-2 text-sm font-medium text-center text-white bg-red-600/80 hover:bg-red-600 rounded-lg transition duration-200"
+            >
+              Keluar
+            </button>
+          </div>
         ) : user ? (
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center shrink-0">
                 <span className="text-sm font-semibold text-white">
                   {user.email?.[0].toUpperCase() || 'U'}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-slate-300 truncate">
+                <p className="text-xs font-medium text-slate-200 truncate">
                   {user.user_metadata?.full_name || user.email}
                 </p>
-                <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
+                <p className="text-[10px] text-blue-300 truncate">{user.email}</p>
               </div>
             </div>
             <LogoutButton />
@@ -164,7 +197,7 @@ export default function Sidebar() {
         ) : (
           <Link
             href="/auth/login"
-            className="block px-3 py-2 text-sm font-medium text-center text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition duration-200"
+            className="block px-3 py-2 text-sm font-medium text-center text-white bg-cyan-600 hover:bg-cyan-700 rounded-lg transition duration-200"
           >
             Login
           </Link>

@@ -1,43 +1,74 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import { calculateSAW } from '@/lib/calculateSAW'
 import type { Kriteria, Alternatif, Penilaian } from '@/lib/supabase'
 import ProtectedPage from '@/components/ProtectedPage'
 import PageHeader from '@/components/ui/PageHeader'
 import Card from '@/components/ui/Card'
 
-async function getDashboardData() {
-  const [
-    { data: kriteriaList, error: e1 },
-    { data: alternatifList, error: e2 },
-    { data: penilaianList, error: e3 },
-  ] = await Promise.all([
-    supabase.from('kriteria').select('*').order('id'),
-    supabase.from('alternatif').select('*').order('id'),
-    supabase.from('penilaian').select('*'),
-  ])
+export const dynamic = 'force-dynamic'
 
-  if (e1 || e2 || e3) {
-    throw new Error('Gagal mengambil data dari Supabase')
-  }
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
-  return {
-    kriteriaList: (kriteriaList ?? []) as Kriteria[],
-    alternatifList: (alternatifList ?? []) as Alternatif[],
-    penilaianList: (penilaianList ?? []) as Penilaian[],
-  }
-}
+export default function DashboardPage() {
+  const [kriteriaList, setKriteriaList] = useState<Kriteria[]>([])
+  const [alternatifList, setAlternatifList] = useState<Alternatif[]>([])
+  const [penilaianList, setPenilaianList] = useState<Penilaian[]>([])
 
-async function DashboardContent() {
-  const { kriteriaList, alternatifList, penilaianList } = await getDashboardData()
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [{ data: k }, { data: a }, { data: p }] = await Promise.all([
+          supabase.from('kriteria').select('*').order('id'),
+          supabase.from('alternatif').select('*').order('id'),
+          supabase.from('penilaian').select('*'),
+        ])
+        setKriteriaList(k ?? [])
+        setAlternatifList(a ?? [])
+        setPenilaianList(p ?? [])
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    loadData()
+
+    // Subscribe to real-time changes
+    const kriteriaSub = supabase
+      .channel('kriteria-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'kriteria' }, () => loadData())
+      .subscribe()
+
+    const alternatifSub = supabase
+      .channel('alternatif-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'alternatif' }, () => loadData())
+      .subscribe()
+
+    const penilaianSub = supabase
+      .channel('penilaian-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'penilaian' }, () => loadData())
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(kriteriaSub)
+      supabase.removeChannel(alternatifSub)
+      supabase.removeChannel(penilaianSub)
+    }
+  }, [])
+
   const hasil = calculateSAW(alternatifList, kriteriaList, penilaianList)
-
   const topRanked = hasil.slice(0, 3)
   const totalBobot = kriteriaList.reduce((sum, k) => sum + k.bobot, 0)
   const bobotValid = Math.abs(totalBobot - 1) < 0.001
 
   return (
-    <>
+    <ProtectedPage>
       <PageHeader
         title="Dashboard"
         description="Ringkasan sistem penunjang keputusan dan data terbaru"
@@ -100,7 +131,15 @@ async function DashboardContent() {
                   Status Bobot
                 </p>
                 <p className="text-3xl font-bold mt-2" style={{color: bobotValid ? '#059669' : '#d97706'}}>
-                  {bobotValid ? '✓' : '⚠'}
+                  {bobotValid ? (
+                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  )}
                 </p>
               </div>
               <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${bobotValid ? 'bg-emerald-100' : 'bg-amber-100'}`}>
@@ -140,7 +179,7 @@ async function DashboardContent() {
                     idx === 1 ? 'bg-gradient-to-br from-slate-400 to-slate-500' : 
                     'bg-gradient-to-br from-orange-400 to-orange-500'
                   }`}>
-                    {idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}
+                    {idx === 0 ? '1st' : idx === 1 ? '2nd' : '3rd'}
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold text-slate-800">{h.alternatif.nama_mata_kuliah}</p>
@@ -196,14 +235,6 @@ async function DashboardContent() {
           </Link>
         </div>
       </div>
-    </>
-  )
-}
-
-export default function DashboardPage() {
-  return (
-    <ProtectedPage>
-      <DashboardContent />
     </ProtectedPage>
   )
 }

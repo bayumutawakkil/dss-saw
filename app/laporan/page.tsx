@@ -66,27 +66,33 @@ export default function LaporanPage() {
       rawMatrix.push(row)
     })
 
-    // Find max for each kriteria (for normalization)
+    // Find max and min for each kriteria (for normalization)
     const maxValues: number[] = []
+    const minValues: number[] = []
     kriteria.forEach((_, kriIdx) => {
       let max = 0
+      let min = Infinity
       alternatif.forEach((_, altIdx) => {
-        if (rawMatrix[altIdx][kriIdx] > max) max = rawMatrix[altIdx][kriIdx]
+        const val = rawMatrix[altIdx][kriIdx]
+        if (val > max) max = val
+        if (val > 0 && val < min) min = val
       })
       maxValues.push(max)
+      minValues.push(min === Infinity ? 0 : min)
     })
 
     // Calculate normalized matrix and final scores
     const results: Result[] = alternatif.map((alt, altIdx) => {
       const rawScores = rawMatrix[altIdx]
       const normalizedScores = rawScores.map((score, kriIdx) => {
-        if (maxValues[kriIdx] === 0) return 0
-        // For benefit criteria: normalized = score / max
+        if (score === 0) return 0
         if (kriteria[kriIdx].jenis === 'benefit') {
-          return score / maxValues[kriIdx]
+          // For benefit: R = score / max
+          return maxValues[kriIdx] === 0 ? 0 : score / maxValues[kriIdx]
+        } else {
+          // For cost: R = min / score
+          return minValues[kriIdx] === 0 || score === 0 ? 0 : minValues[kriIdx] / score
         }
-        // For cost criteria: normalized = min / score
-        return maxValues[kriIdx] / score || 0
       })
 
       // Calculate final score using SAW
@@ -115,7 +121,7 @@ export default function LaporanPage() {
   }
 
   const results = calculateResults()
-  const medals = ['🥇', '🥈', '🥉']
+  const medals = ['1st', '2nd', '3rd']
 
   if (loading) {
     return (
