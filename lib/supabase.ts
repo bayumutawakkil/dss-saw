@@ -1,12 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Server-side client (for Server Components and API Routes)
-const supabaseUrl = process.env.SUPABASE_URL!
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!
+// Menggunakan prefix NEXT_PUBLIC_ agar variabel dapat diakses di sisi client (browser) oleh Next.js
+// Tanda seru (!) di akhir memberitahu TypeScript bahwa variabel ini pasti ada di environment
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
+// Inisialisasi client Supabase
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Tipe data database
+// --- Definisi Tipe Data Database ---
+
 export type Kriteria = {
   id: number
   nama_kriteria: string
@@ -26,6 +29,7 @@ export type Penilaian = {
   nilai: number
 }
 
+// Tipe data gabungan untuk keperluan join tabel (misal di halaman Leaderboard atau Matriks)
 export type PenilaianWithRelations = Penilaian & {
   alternatif: Alternatif
   kriteria: Kriteria
