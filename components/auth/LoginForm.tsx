@@ -29,7 +29,7 @@ export default function LoginForm() {
         router.push('/')
         router.refresh()
       }
-    } catch (err) {
+    } catch {
       setError('Terjadi kesalahan saat login')
     } finally {
       setLoading(false)

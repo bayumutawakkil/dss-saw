@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { calculateSAW } from '@/lib/calculateSAW'
 import type { Kriteria, Alternatif, Penilaian } from '@/lib/supabase'
+import ProtectedPage from '@/components/ProtectedPage'
 
 async function getDashboardData() {
   const [
@@ -25,7 +26,7 @@ async function getDashboardData() {
   }
 }
 
-export default async function DashboardPage() {
+async function DashboardContent() {
   const { kriteriaList, alternatifList, penilaianList } = await getDashboardData()
   const hasil = calculateSAW(alternatifList, kriteriaList, penilaianList)
 
@@ -171,5 +172,13 @@ export default async function DashboardPage() {
         </Link>
       </div>
     </div>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <ProtectedPage>
+      <DashboardContent />
+    </ProtectedPage>
   )
 }

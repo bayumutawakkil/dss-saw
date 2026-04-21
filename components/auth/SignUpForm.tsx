@@ -40,7 +40,7 @@ export default function SignUpForm() {
           router.push('/auth/login')
         }, 2000)
       }
-    } catch (err) {
+    } catch {
       setError('Terjadi kesalahan saat mendaftar')
     } finally {
       setLoading(false)
