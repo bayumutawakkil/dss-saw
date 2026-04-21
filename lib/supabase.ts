@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 
+// Server-side client (for Server Components and API Routes)
 const supabaseUrl = process.env.SUPABASE_URL!
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!
 
