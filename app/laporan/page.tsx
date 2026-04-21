@@ -50,13 +50,11 @@ export default function LaporanPage() {
   const calculateResults = (): Result[] => {
     if (kriteria.length === 0 || alternatif.length === 0 || penilaian.length === 0) return []
 
-    // Get raw scores for each alternatif-kriteria pair
     const getRawScore = (altId: number, kriId: number): number => {
       const p = penilaian.find((x) => x.alternatif_id === altId && x.kriteria_id === kriId)
       return p?.nilai ?? 0
     }
 
-    // Build raw matrix
     const rawMatrix: number[][] = []
     alternatif.forEach((alt) => {
       const row: number[] = []
@@ -66,7 +64,6 @@ export default function LaporanPage() {
       rawMatrix.push(row)
     })
 
-    // Find max and min for each kriteria (for normalization)
     const maxValues: number[] = []
     const minValues: number[] = []
     kriteria.forEach((_, kriIdx) => {
@@ -81,21 +78,17 @@ export default function LaporanPage() {
       minValues.push(min === Infinity ? 0 : min)
     })
 
-    // Calculate normalized matrix and final scores
     const results: Result[] = alternatif.map((alt, altIdx) => {
       const rawScores = rawMatrix[altIdx]
       const normalizedScores = rawScores.map((score, kriIdx) => {
         if (score === 0) return 0
         if (kriteria[kriIdx].jenis === 'benefit') {
-          // For benefit: R = score / max
           return maxValues[kriIdx] === 0 ? 0 : score / maxValues[kriIdx]
         } else {
-          // For cost: R = min / score
           return minValues[kriIdx] === 0 || score === 0 ? 0 : minValues[kriIdx] / score
         }
       })
 
-      // Calculate final score using SAW
       let finalScore = 0
       normalizedScores.forEach((normScore, kriIdx) => {
         finalScore += kriteria[kriIdx].bobot * normScore
@@ -111,7 +104,6 @@ export default function LaporanPage() {
       }
     })
 
-    // Sort by final score and assign ranks
     results.sort((a, b) => b.finalScore - a.finalScore)
     results.forEach((r, idx) => {
       r.rank = idx + 1
@@ -121,75 +113,70 @@ export default function LaporanPage() {
   }
 
   const results = calculateResults()
-  const medals = ['1st', '2nd', '3rd']
+  const medals = ['🥇 1st', '🥈 2nd', '🥉 3rd']
 
   if (loading) {
     return (
       <ProtectedPage>
-        <div className="p-8 text-center">Loading...</div>
+        <div className="p-8 text-center text-black font-semibold">Memuat Laporan...</div>
       </ProtectedPage>
     )
   }
 
   return (
     <ProtectedPage>
-      <div className="p-8">
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-              Real-Time Analysis
+      <div className="p-8 bg-white min-h-screen">
+        <div className="mb-10">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xs font-bold bg-blue-700 text-white px-3 py-1 rounded-full">
+              ANALISIS DATA TERBARU
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-800">Laporan Hasil Keputusan</h1>
-          <p className="text-slate-500 mt-1 text-sm">
-            Hasil evaluasi algoritma Simple Additive Weighting (SAW) berdasarkan data matriks terkini.
+          {/* Warna hitam pekat, ketebalan normal bold */}
+          <h1 className="text-4xl font-bold text-black tracking-tight">Laporan Hasil Keputusan</h1>
+          <p className="text-slate-900 mt-2 text-lg">
+            Evaluasi algoritma Simple Additive Weighting (SAW) berdasarkan parameter kriteria dan alternatif.
           </p>
         </div>
 
         {/* Section 1: Raw Matrix */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-6 h-6 bg-indigo-600 text-white rounded font-bold text-sm flex items-center justify-center">
-              1
-            </div>
-            <h2 className="text-lg font-bold text-slate-800">Matriks Keputusan Awal (X)</h2>
+        <div className="mb-12">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-8 h-8 bg-black text-white rounded font-bold flex items-center justify-center">1</div>
+            <h2 className="text-2xl font-bold text-black">Matriks Keputusan Awal (X)</h2>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-xl border-2 border-black overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-slate-50 text-left">
-                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      Alternatif
-                    </th>
+                  <tr className="bg-slate-100 border-b-2 border-black text-left">
+                    <th className="px-6 py-4 font-bold text-black uppercase">Alternatif</th>
                     {kriteria.map((k) => (
-                      <th key={k.id} className="px-4 py-3 text-center text-xs font-semibold text-slate-500">
-                        C{k.id}
-                      </th>
+                      <th key={k.id} className="px-4 py-4 text-center font-bold text-black">C{k.id}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-200">
                   {results.map((r) => (
-                    <tr key={r.alternatifId} className="hover:bg-slate-50">
-                      <td className="px-5 py-3 font-medium text-slate-800">{r.alternatifName}</td>
+                    <tr key={r.alternatifId}>
+                      <td className="px-6 py-4 font-semibold text-black bg-slate-50/50">{r.alternatifName}</td>
                       {r.rawScores.map((score, idx) => (
-                        <td key={idx} className="px-4 py-3 text-center text-sm">
+                        <td key={idx} className="px-4 py-4 text-center text-black font-medium">
                           {score.toFixed(4)}
                         </td>
                       ))}
                     </tr>
                   ))}
-                  <tr className="bg-slate-50 font-semibold">
-                    <td className="px-5 py-3">Nilai Maksimal (Max)</td>
+                  <tr className="bg-black text-white">
+                    <td className="px-6 py-4 font-bold uppercase text-xs">Nilai Maksimal (Max)</td>
                     {kriteria.map((_, kriIdx) => {
                       let max = 0
                       results.forEach((r) => {
                         if (r.rawScores[kriIdx] > max) max = r.rawScores[kriIdx]
                       })
                       return (
-                        <td key={kriIdx} className="px-4 py-3 text-center text-sm">
+                        <td key={kriIdx} className="px-4 py-4 text-center font-bold">
                           {max.toFixed(4)}
                         </td>
                       )
@@ -202,134 +189,129 @@ export default function LaporanPage() {
         </div>
 
         {/* Section 2: Normalized Matrix */}
-        <div className="mb-8">
+        <div className="mb-12">
           <button
             onClick={() => setShowNormalized(!showNormalized)}
-            className="flex items-center gap-3 mb-4 p-3 w-full rounded-lg hover:bg-slate-50 transition"
+            className="flex items-center gap-3 mb-5 p-5 w-full rounded-xl border-2 border-black hover:bg-slate-50 transition-colors"
           >
-            <div className="w-6 h-6 bg-indigo-600 text-white rounded font-bold text-sm flex items-center justify-center">
-              2
-            </div>
-            <h2 className="text-lg font-bold text-slate-800">Matriks Normalisasi (R)</h2>
-            <span className="ml-auto text-slate-400">{showNormalized ? '▼' : '▶'}</span>
+            <div className="w-8 h-8 bg-black text-white rounded font-bold flex items-center justify-center">2</div>
+            <h2 className="text-2xl font-bold text-black">Matriks Normalisasi (R)</h2>
+            <span className="ml-auto text-black font-bold">{showNormalized ? '▲' : '▼'}</span>
           </button>
 
           {showNormalized && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-900">
-                  <strong>Rumus Benefit:</strong> R<sub>ij</sub> = Nilai Mentah ÷ Nilai Maksimal
+            <div className="space-y-4 animate-in fade-in duration-300">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="border-2 border-blue-800 bg-blue-50 p-4 rounded-lg">
+                  <span className="text-xs font-bold text-blue-800 uppercase block mb-1">Kriteria Benefit</span>
+                  <p className="text-black font-semibold italic text-base">Rᵢⱼ = Nilai Mentah / Nilai Maksimal</p>
                 </div>
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-sm text-orange-900">
-                  <strong>Rumus Cost:</strong> R<sub>ij</sub> = Nilai Minimal ÷ Nilai Mentah
+                <div className="border-2 border-slate-800 bg-slate-50 p-4 rounded-lg">
+                  <span className="text-xs font-bold text-slate-800 uppercase block mb-1">Kriteria Cost</span>
+                  <p className="text-black font-semibold italic text-base">Rᵢⱼ = Nilai Minimal / Nilai Mentah</p>
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-slate-50 text-left">
-                        <th className="px-5 py-3 text-xs font-semibold text-slate-500">Alternatif</th>
-                        {kriteria.map((k) => (
-                          <th key={k.id} className="px-4 py-3 text-center text-xs font-semibold text-slate-500">
-                            <div>C{k.id}</div>
-                            <div className="text-[10px] font-normal">Bobot: {k.bobot}</div>
-                          </th>
+              <div className="bg-white rounded-xl border-2 border-black overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-slate-100 border-b-2 border-black text-left">
+                      <th className="px-6 py-4 font-bold text-black">Alternatif</th>
+                      {kriteria.map((k) => (
+                        <th key={k.id} className="px-4 py-4 text-center font-bold text-black">
+                          <div>C{k.id}</div>
+                          <div className="text-[10px] uppercase opacity-70">W: {k.bobot}</div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {results.map((r) => (
+                      <tr key={r.alternatifId}>
+                        <td className="px-6 py-4 font-semibold text-black">{r.alternatifName}</td>
+                        {r.normalizedScores.map((score, idx) => (
+                          <td key={idx} className="px-4 py-4 text-center text-blue-900 font-bold">
+                            {score.toFixed(2)}
+                          </td>
                         ))}
                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {results.map((r) => (
-                        <tr key={r.alternatifId} className="hover:bg-slate-50">
-                          <td className="px-5 py-3 font-medium text-slate-900">{r.alternatifName}</td>
-                          {r.normalizedScores.map((score, idx) => (
-                            <td key={idx} className="px-4 py-3 text-center text-sm text-slate-900 font-medium">
-                              {score.toFixed(2)}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
         </div>
 
-        {/* Section 3: Results & Leaderboard */}
+        {/* Section 3: Final Results */}
         <div className="mb-8">
           <button
             onClick={() => setShowResults(!showResults)}
-            className="flex items-center gap-3 mb-4 p-3 w-full rounded-lg hover:bg-slate-50 transition"
+            className="flex items-center gap-3 mb-5 p-5 w-full rounded-xl border-2 border-black hover:bg-slate-50 transition-colors"
           >
-            <div className="w-6 h-6 bg-indigo-600 text-white rounded font-bold text-sm flex items-center justify-center">
-              3
-            </div>
-            <h2 className="text-lg font-bold text-slate-800">Puncak Klasemen Leaderboard</h2>
-            <span className="ml-auto text-slate-400">{showResults ? '▼' : '▶'}</span>
+            <div className="w-8 h-8 bg-black text-white rounded font-bold flex items-center justify-center">3</div>
+            <h2 className="text-2xl font-bold text-black">Hasil Perankingan Akhir</h2>
+            <span className="ml-auto text-black font-bold">{showResults ? '▲' : '▼'}</span>
           </button>
 
           {showResults && (
-            <div className="space-y-6">
-              {/* Top 3 Medal Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-8 animate-in fade-in duration-500">
+              {/* Podium yang lebih kontras */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {results.slice(0, 3).map((r, idx) => (
                   <div
                     key={r.alternatifId}
-                    className={`rounded-xl p-6 text-center text-white font-semibold ${
-                      idx === 0
-                        ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 md:col-span-1 md:row-span-2 text-lg'
-                        : idx === 1
-                          ? 'bg-gradient-to-br from-gray-300 to-gray-500'
-                          : 'bg-gradient-to-br from-orange-400 to-orange-600'
+                    className={`rounded-2xl p-8 border-2 border-black text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
+                      idx === 0 ? 'bg-yellow-50' : 'bg-white'
                     }`}
                   >
-                    <div className="text-4xl mb-2">{medals[idx]}</div>
-                    <div className="text-sm opacity-90 mb-1">Juara {idx === 0 ? '1 Utama' : idx + 1}</div>
-                    <div className="text-lg font-bold mb-2">{r.alternatifName}</div>
-                    <div className="text-2xl font-mono">{r.finalScore.toFixed(2)}</div>
+                    <div className="text-4xl mb-4">{medals[idx].split(' ')[0]}</div>
+                    <div className="text-sm font-bold text-black uppercase tracking-widest mb-1">
+                      {idx === 0 ? 'Peringkat 1' : `Peringkat ${idx + 1}`}
+                    </div>
+                    <div className="text-xl font-bold text-black mb-3">{r.alternatifName}</div>
+                    <div className="text-4xl font-bold text-black border-t-2 border-black pt-3 inline-block">
+                      {r.finalScore.toFixed(4)}
+                    </div>
                   </div>
                 ))}
               </div>
 
-              {/* Full Results Table */}
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              {/* Tabel Utama Hasil Akhir */}
+              <div className="bg-white rounded-xl border-2 border-black overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-slate-50 text-left">
-                        <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Rank</th>
-                        <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">
-                          Alternatif Platform
-                        </th>
-                        <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">
-                          Rincian Kalkulasi ∑ (W × R)
-                        </th>
-                        <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase text-center">
-                          Skor Total
-                        </th>
+                      <tr className="bg-black text-white text-left">
+                        <th className="px-6 py-5 font-bold uppercase tracking-wider">Rank</th>
+                        <th className="px-6 py-5 font-bold uppercase tracking-wider">Alternatif</th>
+                        <th className="px-6 py-5 font-bold uppercase tracking-wider hidden lg:table-cell">Kalkulasi ∑(W × R)</th>
+                        <th className="px-6 py-5 font-bold uppercase tracking-wider text-center">Skor Akhir</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y-2 divide-slate-100">
                       {results.map((r) => {
-                        // Build calculation string
                         let calcStr = ''
                         kriteria.forEach((k, idx) => {
                           if (idx > 0) calcStr += ' + '
-                          calcStr += `(${k.bobot.toFixed(2)} × ${r.normalizedScores[idx].toFixed(2)})`
+                          calcStr += `(${k.bobot.toFixed(2)}×${r.normalizedScores[idx].toFixed(2)})`
                         })
 
                         return (
-                          <tr key={r.alternatifId} className="hover:bg-slate-50">
-                            <td className="px-5 py-3 font-semibold text-slate-900">
-                              {r.rank <= 3 ? medals[r.rank - 1] : r.rank}
+                          <tr key={r.alternatifId} className="hover:bg-slate-50 transition-colors">
+                            <td className="px-6 py-5">
+                              <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg border-2 border-black font-bold text-black text-base">
+                                {r.rank}
+                              </span>
                             </td>
-                            <td className="px-5 py-3 font-medium text-slate-900">{r.alternatifName}</td>
-                            <td className="px-5 py-3 text-xs font-mono text-slate-900">{calcStr}</td>
-                            <td className="px-5 py-3 text-center font-bold text-indigo-700">
-                              {r.finalScore.toFixed(2)}
+                            <td className="px-6 py-5 font-bold text-black text-base">{r.alternatifName}</td>
+                            <td className="px-6 py-5 text-xs font-semibold text-slate-800 font-mono hidden lg:table-cell">
+                              {calcStr}
+                            </td>
+                            <td className="px-6 py-5 text-center">
+                              <span className="text-xl font-bold text-black bg-slate-100 px-4 py-2 rounded border border-black">
+                                {r.finalScore.toFixed(4)}
+                              </span>
                             </td>
                           </tr>
                         )
