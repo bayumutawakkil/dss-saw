@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useAuth } from '@/lib/auth-context'
+import LogoutButton from './auth/LogoutButton'
 
 type NavItem = {
   href: string
@@ -68,6 +70,12 @@ const navItems: NavItem[] = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const { user, loading } = useAuth()
+
+  // Don't show sidebar on auth pages
+  if (pathname.startsWith('/auth')) {
+    return null
+  }
 
   return (
     <aside className="flex flex-col w-64 min-h-screen bg-slate-900 text-white shadow-xl">
@@ -116,17 +124,33 @@ export default function Sidebar() {
 
       {/* Footer sidebar */}
       <div className="px-6 py-4 border-t border-slate-700">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">
-            <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-            </svg>
+        {loading ? (
+          <div className="text-xs text-slate-400">Loading...</div>
+        ) : user ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center shrink-0">
+                <span className="text-sm font-semibold text-white">
+                  {user.email?.[0].toUpperCase() || 'U'}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-slate-300 truncate">
+                  {user.user_metadata?.full_name || user.email}
+                </p>
+                <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
+              </div>
+            </div>
+            <LogoutButton />
           </div>
-          <div>
-            <p className="text-xs font-medium text-slate-300">Admin</p>
-            <p className="text-[10px] text-slate-500">Semester Ganjil 2024</p>
-          </div>
-        </div>
+        ) : (
+          <Link
+            href="/auth/login"
+            className="block px-3 py-2 text-sm font-medium text-center text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition duration-200"
+          >
+            Login
+          </Link>
+        )}
       </div>
     </aside>
   )
