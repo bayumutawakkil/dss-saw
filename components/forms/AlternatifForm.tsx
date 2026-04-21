@@ -3,6 +3,10 @@
 import { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import type { Alternatif } from '@/lib/supabase'
+import Button from '@/components/ui/Button'
+import Input from '@/components/ui/Input'
+import Alert from '@/components/ui/Alert'
+import Card from '@/components/ui/Card'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,14 +22,16 @@ export default function AlternatifForm({ onSuccess, editingItem }: AlternatifFor
   const [namaMataKuliah, setNamaMataKuliah] = useState(editingItem?.nama_mata_kuliah || '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setSuccess(false)
     setLoading(true)
 
     try {
-      if (!namaMataKuliah) {
+      if (!namaMataKuliah.trim()) {
         setError('Nama mata kuliah harus diisi')
         setLoading(false)
         return
@@ -52,8 +58,9 @@ export default function AlternatifForm({ onSuccess, editingItem }: AlternatifFor
         if (insertError) throw insertError
       }
 
+      setSuccess(true)
       setNamaMataKuliah('')
-      onSuccess()
+      setTimeout(() => onSuccess(), 500)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Gagal menyimpan data'
       setError(errorMessage)
@@ -63,35 +70,60 @@ export default function AlternatifForm({ onSuccess, editingItem }: AlternatifFor
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6">
-      <h2 className="text-lg font-semibold text-slate-800 mb-4">
-        {editingItem ? 'Edit Alternatif' : 'Tambah Alternatif Baru'}
-      </h2>
+    <Card className="mb-6">
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-slate-800">
+          {editingItem ? '✏️ Edit Alternatif' : '➕ Tambah Alternatif Baru'}
+        </h2>
+        <p className="text-slate-600 text-sm mt-1">
+          {editingItem ? 'Perbarui nama alternatif/mata kuliah' : 'Buat alternatif baru untuk penilaian'}
+        </p>
+      </div>
 
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Nama Mata Kuliah</label>
-          <input
-            type="text"
-            value={namaMataKuliah}
-            onChange={(e) => setNamaMataKuliah(e.target.value)}
-            placeholder="Masukkan nama mata kuliah"
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+      {error && (
+        <div className="mb-4">
+          <Alert
+            type="error"
+            message={error}
+            onClose={() => setError('')}
           />
         </div>
+      )}
 
-        {error && <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">{error}</div>}
-
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
-          >
-            {loading ? (editingItem ? 'Updating...' : 'Menambah...') : editingItem ? 'Update' : 'Tambah'}
-          </button>
+      {success && (
+        <div className="mb-4">
+          <Alert
+            type="success"
+            message={editingItem ? 'Alternatif berhasil diperbarui' : 'Alternatif berhasil ditambahkan'}
+            onClose={() => setSuccess(false)}
+          />
         </div>
-      </div>
-    </form>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <Input
+          label="Nama Mata Kuliah / Alternatif"
+          placeholder="Contoh: Basis Data, Pemrograman Web"
+          value={namaMataKuliah}
+          onChange={(e) => setNamaMataKuliah(e.target.value)}
+          icon={
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          }
+        />
+
+        <div className="flex gap-3 pt-4">
+          <Button
+            type="submit"
+            loading={loading}
+            fullWidth
+            variant="secondary"
+          >
+            {editingItem ? 'Update Alternatif' : 'Tambah Alternatif'}
+          </Button>
+        </div>
+      </form>
+    </Card>
   )
 }

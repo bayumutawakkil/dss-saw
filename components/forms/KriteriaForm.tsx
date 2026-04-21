@@ -3,6 +3,11 @@
 import { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import type { Kriteria } from '@/lib/supabase'
+import Button from '@/components/ui/Button'
+import Input from '@/components/ui/Input'
+import Select from '@/components/ui/Select'
+import Alert from '@/components/ui/Alert'
+import Card from '@/components/ui/Card'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,14 +25,16 @@ export default function KriteriaForm({ onSuccess, editingItem }: KriteriaFormPro
   const [jenis, setJenis] = useState<'benefit' | 'cost'>(editingItem?.jenis || 'benefit')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setSuccess(false)
     setLoading(true)
 
     try {
-      if (!namaKriteria || !bobot) {
+      if (!namaKriteria.trim() || !bobot) {
         setError('Semua field harus diisi')
         setLoading(false)
         return
@@ -65,10 +72,11 @@ export default function KriteriaForm({ onSuccess, editingItem }: KriteriaFormPro
         if (insertError) throw insertError
       }
 
+      setSuccess(true)
       setNamaKriteria('')
       setBobot('')
       setJenis('benefit')
-      onSuccess()
+      setTimeout(() => onSuccess(), 500)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Gagal menyimpan data'
       setError(errorMessage)
@@ -78,61 +86,88 @@ export default function KriteriaForm({ onSuccess, editingItem }: KriteriaFormPro
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6">
-      <h2 className="text-lg font-semibold text-slate-800 mb-4">
-        {editingItem ? 'Edit Kriteria' : 'Tambah Kriteria Baru'}
-      </h2>
+    <Card className="mb-6">
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-slate-800">
+          {editingItem ? '✏️ Edit Kriteria' : '➕ Tambah Kriteria Baru'}
+        </h2>
+        <p className="text-slate-600 text-sm mt-1">
+          {editingItem ? 'Perbarui data kriteria penilaian' : 'Buat kriteria baru untuk sistem penilaian'}
+        </p>
+      </div>
 
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Nama Kriteria</label>
-          <input
-            type="text"
-            value={namaKriteria}
-            onChange={(e) => setNamaKriteria(e.target.value)}
-            placeholder="Masukkan nama kriteria"
-            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+      {error && (
+        <div className="mb-4">
+          <Alert
+            type="error"
+            message={error}
+            onClose={() => setError('')}
+          />
+        </div>
+      )}
+
+      {success && (
+        <div className="mb-4">
+          <Alert
+            type="success"
+            message={editingItem ? 'Kriteria berhasil diperbarui' : 'Kriteria berhasil ditambahkan'}
+            onClose={() => setSuccess(false)}
+          />
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <Input
+          label="Nama Kriteria"
+          placeholder="Contoh: Nilai Rata-Rata"
+          value={namaKriteria}
+          onChange={(e) => setNamaKriteria(e.target.value)}
+          icon={
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+          }
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <Input
+            label="Bobot (0.00 - 1.00)"
+            type="number"
+            step="0.01"
+            min="0"
+            max="1"
+            placeholder="0.25"
+            helpText="Jumlah semua bobot harus = 1.00"
+            value={bobot}
+            onChange={(e) => setBobot(e.target.value)}
+            icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            }
+          />
+
+          <Select
+            label="Jenis Kriteria"
+            value={jenis}
+            onChange={(e) => setJenis(e.target.value as 'benefit' | 'cost')}
+            options={[
+              { value: 'benefit', label: 'Benefit (Semakin tinggi semakin baik)' },
+              { value: 'cost', label: 'Cost (Semakin rendah semakin baik)' },
+            ]}
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Bobot (0-1)</label>
-            <input
-              type="number"
-              step="0.01"
-              value={bobot}
-              onChange={(e) => setBobot(e.target.value)}
-              placeholder="0.25"
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Jenis</label>
-            <select
-              value={jenis}
-              onChange={(e) => setJenis(e.target.value as 'benefit' | 'cost')}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            >
-              <option value="benefit">Benefit (Semakin tinggi semakin baik)</option>
-              <option value="cost">Cost (Semakin rendah semakin baik)</option>
-            </select>
-          </div>
-        </div>
-
-        {error && <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">{error}</div>}
-
-        <div className="flex gap-2">
-          <button
+        <div className="flex gap-3 pt-4">
+          <Button
             type="submit"
-            disabled={loading}
-            className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
+            loading={loading}
+            fullWidth
           >
-            {loading ? (editingItem ? 'Updating...' : 'Menambah...') : editingItem ? 'Update' : 'Tambah'}
-          </button>
+            {editingItem ? 'Update Kriteria' : 'Tambah Kriteria'}
+          </Button>
         </div>
-      </div>
-    </form>
+      </form>
+    </Card>
   )
 }
