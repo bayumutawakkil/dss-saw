@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 const supabase = createClient(
@@ -90,13 +89,6 @@ export default function LoginForm() {
             {loading ? 'Sedang login...' : 'Login'}
           </button>
         </form>
-
-        <p className="text-center text-gray-600 text-sm mt-6">
-          Belum punya akun?{' '}
-          <Link href="/auth/signup" className="text-blue-600 hover:underline font-semibold">
-            Daftar di sini
-          </Link>
-        </p>
       </div>
     </div>
   )

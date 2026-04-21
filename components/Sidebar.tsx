@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import LogoutButton from './auth/LogoutButton'
+import { useEffect } from 'react'
 
 type NavItem = {
   href: string
@@ -71,6 +72,14 @@ const navItems: NavItem[] = [
 export default function Sidebar() {
   const pathname = usePathname()
   const { user, loading } = useAuth()
+  const router = useRouter()
+
+  // Redirect to login if not authenticated and not on auth pages
+  useEffect(() => {
+    if (!loading && !user && !pathname.startsWith('/auth')) {
+      router.push('/auth/login')
+    }
+  }, [user, loading, pathname, router])
 
   // Don't show sidebar on auth pages
   if (pathname.startsWith('/auth')) {
