@@ -36,8 +36,12 @@ export function hitungNormalisasi(
         m.nilai[kId] = maxNilai === 0 ? 0 : (m.nilai[kId] ?? 0) / maxNilai
       })
     } else {
-      // cost
-      const minNilai = Math.min(...nilaiKolom)
+      // cost - untuk cost, nilai lebih kecil lebih baik
+      // R_ij = min(X_j) / X_ij
+      // Jika ada nilai 0, gunakan nilai positif terkecil sebagai minimum
+      const nilaiPositif = nilaiKolom.filter(v => v > 0)
+      const minNilai = nilaiPositif.length > 0 ? Math.min(...nilaiPositif) : 1
+      
       normalized.forEach((m) => {
         const v = m.nilai[kId] ?? 0
         m.nilai[kId] = v === 0 ? 0 : minNilai / v
