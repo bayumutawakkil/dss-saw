@@ -7,7 +7,7 @@ const developers = [
     name: 'Nama Pengembang 1',
     role: 'Full Stack Developer',
     nim: '2210000001',
-    avatar: '👨‍💻',
+    avatar: '1',
     color: 'bg-indigo-100 dark:bg-indigo-900/40',
     textColor: 'text-indigo-600 dark:text-indigo-400',
   },
@@ -15,7 +15,7 @@ const developers = [
     name: 'Nama Pengembang 2',
     role: 'UI/UX Designer',
     nim: '2210000002',
-    avatar: '👩‍🎨',
+    avatar: '2',
     color: 'bg-emerald-100 dark:bg-emerald-900/40',
     textColor: 'text-emerald-600 dark:text-emerald-400',
   },
@@ -23,7 +23,7 @@ const developers = [
     name: 'Nama Pengembang 3',
     role: 'Backend Developer',
     nim: '2210000003',
-    avatar: '👨‍🔧',
+    avatar: '3',
     color: 'bg-amber-100 dark:bg-amber-900/40',
     textColor: 'text-amber-600 dark:text-amber-400',
   },
@@ -31,7 +31,7 @@ const developers = [
     name: 'Nama Pengembang 4',
     role: 'Database Engineer',
     nim: '2210000004',
-    avatar: '👩‍💻',
+    avatar: '4',
     color: 'bg-purple-100 dark:bg-purple-900/40',
     textColor: 'text-purple-600 dark:text-purple-400',
   },
@@ -47,11 +47,11 @@ function SectionHeader({
   subtitle?: string
 }) {
   return (
-    <div className="flex items-center gap-3 pb-4 mb-5 border-b border-slate-100 dark:border-slate-700">
+    <div className="flex items-center gap-3 mb-4">
       <div className="flex-shrink-0">{icon}</div>
       <div>
-        <h2 className="text-lg font-bold text-slate-900">{title}</h2>
-        {subtitle && <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>}
+        <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">{title}</h2>
+        {subtitle && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>}
       </div>
     </div>
   )
@@ -74,7 +74,7 @@ export default function TentangPage() {
         }
       />
 
-      <div className="px-4 md:px-8 pb-8 max-w-4xl space-y-5">
+      <div className="px-4 md:px-6 pb-8 space-y-6">
 
         {/* Apa itu SPK */}
         <Card>
@@ -175,19 +175,16 @@ export default function TentangPage() {
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {[
-              { judul: 'Kelola Kriteria', desc: 'Tambah, edit, dan hapus kriteria dengan bobot yang dapat dikonfigurasi', icon: '⚖️' },
-              { judul: 'Kelola Alternatif', desc: 'Mengelola daftar alternatif yang akan dievaluasi dalam sistem', icon: '📚' },
-              { judul: 'Matriks Penilaian', desc: 'Input skor evaluasi untuk setiap kombinasi alternatif dan kriteria', icon: '📊' },
-              { judul: 'Laporan Hasil', desc: 'Detail lengkap perhitungan SAW dengan normalisasi dan skor akhir', icon: '📋' },
-              { judul: 'Leaderboard', desc: 'Visualisasi ranking alternatif berdasarkan skor SAW', icon: '🏆' },
-              { judul: 'Dashboard', desc: 'Pantau statistik utama, status bobot, dan peringkat teratas', icon: '🖥️' },
+              { judul: 'Kelola Kriteria', desc: 'Tambah, edit, dan hapus kriteria dengan bobot yang dapat dikonfigurasi' },
+              { judul: 'Kelola Alternatif', desc: 'Mengelola daftar alternatif yang akan dievaluasi dalam sistem' },
+              { judul: 'Matriks Penilaian', desc: 'Input skor evaluasi untuk setiap kombinasi alternatif dan kriteria' },
+              { judul: 'Laporan Hasil', desc: 'Detail lengkap perhitungan SAW dengan normalisasi dan skor akhir' },
+              { judul: 'Leaderboard', desc: 'Visualisasi ranking alternatif berdasarkan skor SAW' },
+              { judul: 'Dashboard', desc: 'Pantau statistik utama, status bobot, dan peringkat teratas' },
             ].map((fitur) => (
               <div key={fitur.judul} className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600 hover:border-amber-200 dark:hover:border-amber-700 transition-colors">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className="text-base">{fitur.icon}</span>
-                  <h3 className="text-sm font-semibold text-slate-800">{fitur.judul}</h3>
-                </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{fitur.desc}</p>
+                <h3 className="text-sm font-semibold text-slate-800">{fitur.judul}</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mt-2">{fitur.desc}</p>
               </div>
             ))}
           </div>
@@ -208,17 +205,16 @@ export default function TentangPage() {
           />
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { nama: 'Next.js 14', desc: 'React Framework', icon: '⚛️' },
-              { nama: 'TypeScript', desc: 'Type Safety', icon: '🔷' },
-              { nama: 'Tailwind CSS', desc: 'Styling', icon: '🎨' },
-              { nama: 'Supabase', desc: 'Backend & Auth', icon: '🗄️' },
-              { nama: 'PostgreSQL', desc: 'Database', icon: '🐘' },
-              { nama: 'React Hooks', desc: 'State Mgmt', icon: '🪝' },
-              { nama: 'Vercel', desc: 'Hosting', icon: '▲' },
-              { nama: 'Git', desc: 'Version Control', icon: '🌳' },
+              { nama: 'Next.js 14', desc: 'React Framework' },
+              { nama: 'TypeScript', desc: 'Type Safety' },
+              { nama: 'Tailwind CSS', desc: 'Styling' },
+              { nama: 'Supabase', desc: 'Backend & Auth' },
+              { nama: 'PostgreSQL', desc: 'Database' },
+              { nama: 'React Hooks', desc: 'State Mgmt' },
+              { nama: 'Vercel', desc: 'Hosting' },
+              { nama: 'Git', desc: 'Version Control' },
             ].map((tech) => (
               <div key={tech.nama} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
-                <span className="text-xl flex-shrink-0">{tech.icon}</span>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-slate-800 truncate">{tech.nama}</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">{tech.desc}</p>
