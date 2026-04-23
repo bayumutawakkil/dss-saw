@@ -1,38 +1,50 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
 import { calculateSAW } from '@/lib/calculateSAW'
 import type { Kriteria, Alternatif, Penilaian } from '@/lib/supabase'
 import ProtectedPage from '@/components/ProtectedPage'
 import PageHeader from '@/components/ui/PageHeader'
+import Card from '@/components/ui/Card'
+import { useTheme } from 'next-themes'
 
 export const dynamic = 'force-dynamic'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+const medals = ['🥇 1st', '🥈 2nd', '🥉 3rd']
 
+// Medal badge: colored bg — keep dark text on light bg, light text on dark bg
 const medalColors: Record<number, string> = {
   1: 'bg-amber-400 text-amber-900',
-  2: 'bg-slate-300 text-slate-700',
-  3: 'bg-orange-300 text-orange-800',
+  2: 'bg-slate-400 text-white',
+  3: 'bg-orange-400 text-white',
 }
 
-const rowBg: Record<number, string> = {
-  1: 'bg-amber-50 border-amber-200',
-  2: 'bg-slate-50 border-slate-200',
-  3: 'bg-orange-50 border-orange-200',
+// Result table row highlight per rank
+function getRowBg(peringkat: number, isDark: boolean): string {
+  if (isDark) {
+    const map: Record<number, string> = {
+      1: 'bg-amber-900/30 border-amber-700',
+      2: 'bg-slate-700/50 border-slate-600',
+      3: 'bg-orange-900/30 border-orange-700',
+    }
+    return map[peringkat] ?? ''
+  }
+  const map: Record<number, string> = {
+    1: 'bg-amber-50 border-amber-200',
+    2: 'bg-slate-50 border-slate-200',
+    3: 'bg-orange-50 border-orange-200',
+  }
+  return map[peringkat] ?? ''
 }
-
-const medals = ['🥇 1st', '🥈 2nd', '🥉 3rd']
 
 export default function LeaderboardPage() {
   const [kriteriaList, setKriteriaList] = useState<Kriteria[]>([])
   const [alternatifList, setAlternatifList] = useState<Alternatif[]>([])
   const [penilaianList, setPenilaianList] = useState<Penilaian[]>([])
   const [loading, setLoading] = useState(true)
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
 
   useEffect(() => {
     const loadData = async () => {
@@ -97,6 +109,10 @@ export default function LeaderboardPage() {
       <PageHeader
         title="Leaderboard Hasil SAW"
         description="Perankingan mata kuliah berdasarkan metode Simple Additive Weighting"
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/' },
+          { label: 'Leaderboard' },
+        ]}
         icon={
           <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
@@ -104,46 +120,40 @@ export default function LeaderboardPage() {
         }
       />
 
-      <div className="px-8 pb-8">
+      <div className="px-4 md:px-8 pb-8">
         
         {/* Podium View */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 p-3 md:p-5 mb-6">
   {hasil.slice(0, 3).map((r, idx) => {
-    // 1. Menentukan warna latar belakang (Background)
+    // 1. Warna background podium
     const bgColorClass = 
-      idx === 0 ? 'bg-yellow-400' : // Gold
-      idx === 1 ? 'bg-slate-300' :  // Silver
-      'bg-orange-400';              // Bronze
+      idx === 0 ? 'bg-yellow-400 dark:bg-yellow-500' :
+      idx === 1 ? 'bg-slate-300 dark:bg-slate-500' :
+      'bg-orange-400 dark:bg-orange-500'
 
-    // 2. Menentukan warna teks yang lebih gelap
+    // 2. Warna teks — selalu gelap di light, selalu terang di dark
     const textColorClass = 
-      idx === 0 ? 'text-yellow-900' : 
-      idx === 1 ? 'text-slate-800' : 
-      'text-orange-950';
+      idx === 0 ? 'text-yellow-900 dark:text-yellow-100' :
+      idx === 1 ? 'text-slate-800 dark:text-slate-100' :
+      'text-orange-950 dark:text-orange-100'
 
-    // 3. Menentukan warna shadow saat hover
+    // 3. Shadow saat hover
     const hoverShadowColorClass = 
-      idx === 0 ? 'hover:shadow-yellow-600/[0.5]' : 
-      idx === 1 ? 'hover:shadow-slate-500/[0.5]' :  
-      'hover:shadow-orange-700/[0.5]';              
+      idx === 0 ? 'hover:shadow-yellow-600/[0.5]' :
+      idx === 1 ? 'hover:shadow-slate-500/[0.5]' :
+      'hover:shadow-orange-700/[0.5]'
 
     return (
       <div
         key={r.alternatif.id}
         className={`
-          rounded-2xl p-8 text-center 
+          rounded-2xl p-5 md:p-8 text-center 
           border border-slate-950/10 
           transition-all duration-300 ease-in-out 
-          
-          /* State Awal: Tanpa Shadow */
           shadow-none 
-          
-          /* State Hover: Geser sedikit, Munculkan Shadow Ringkas (lg) & Berwarna */
           hover:-translate-y-1 
-          hover:shadow-lg /* <--- Perubahan di sini, dari 2xl ke lg */
+          hover:shadow-lg
           ${hoverShadowColorClass}
-          
-          /* Warna Dinamis */
           ${bgColorClass} 
           ${textColorClass}
         `}
@@ -174,25 +184,24 @@ export default function LeaderboardPage() {
 
 
         {/* Info bobot kriteria */}
-
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 mb-6">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Bobot Kriteria</p>
+        <Card className="mb-6">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">Bobot Kriteria</p>
           <div className="flex flex-wrap gap-3">
             {kriteriaList.map((k) => (
-              <div key={k.id} className="flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-2">
-                <span className="text-xs font-bold text-indigo-600">C{k.id}</span>
-                <span className="text-xs text-slate-600">{k.nama_kriteria}</span>
-                <span className="ml-1 text-xs font-semibold text-indigo-700 bg-indigo-100 rounded px-1.5 py-0.5">
+              <div key={k.id} className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 rounded-lg px-3 py-2">
+                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">C{k.id}</span>
+                <span className="text-xs text-slate-600 dark:text-slate-300">{k.nama_kriteria}</span>
+                <span className="ml-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-300 rounded px-1.5 py-0.5">
                   W = {k.bobot}
                 </span>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* Tabel hasil */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100">
+        <Card padding="sm" className="overflow-hidden !p-0">
+          <div className="px-4 md:px-6 py-4 border-b border-slate-100">
             <h2 className="text-sm font-semibold text-slate-700">Hasil Perankingan</h2>
           </div>
           <div className="overflow-x-auto">
@@ -219,7 +228,7 @@ export default function LeaderboardPage() {
                 {hasil.map((h) => (
                   <tr
                     key={h.alternatif.id}
-                    className={`transition-colors ${rowBg[h.peringkat] ?? 'hover:bg-slate-50'} border-l-4 ${
+                    className={`transition-colors ${getRowBg(h.peringkat, isDark)} border-l-4 ${
                       h.peringkat <= 3 ? '' : 'border-transparent'
                     }`}
                   >
@@ -244,7 +253,7 @@ export default function LeaderboardPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       </div>
     </ProtectedPage>
   )

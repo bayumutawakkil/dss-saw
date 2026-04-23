@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
 import { calculateSAW } from '@/lib/calculateSAW'
 import type { Kriteria, Alternatif, Penilaian } from '@/lib/supabase'
 import ProtectedPage from '@/components/ProtectedPage'
@@ -10,11 +10,6 @@ import PageHeader from '@/components/ui/PageHeader'
 import Card from '@/components/ui/Card'
 
 export const dynamic = 'force-dynamic'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 export default function DashboardPage() {
   const [kriteriaList, setKriteriaList] = useState<Kriteria[]>([])
@@ -79,7 +74,7 @@ export default function DashboardPage() {
         }
       />
 
-      <div className="px-8 pb-8">
+      <div className="px-4 md:px-8 pb-8">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Card padding="lg">
@@ -179,22 +174,22 @@ export default function DashboardPage() {
       return (
         <div 
           key={h.alternatif.id} 
-          className="px-6 py-5 flex items-center gap-6 hover:bg-slate-50 rounded-2xl transition-all duration-300 border border-slate-100 hover:border-indigo-100 group"
+          className="px-3 py-4 md:px-6 md:py-5 flex items-center gap-3 md:gap-6 hover:bg-slate-50 rounded-2xl transition-all duration-300 border border-slate-100 hover:border-indigo-100 group"
         >
           {/* Lencana Peringkat (1st, 2nd, 3rd) */}
           <div className="flex-shrink-0">
             {peringkat === 1 && (
-              <div className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-white text-lg bg-amber-500 shadow-sm shadow-amber-200">
+              <div className="w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center font-bold text-white text-sm md:text-lg bg-amber-500 shadow-sm shadow-amber-200">
                 1st
               </div>
             )}
             {peringkat === 2 && (
-              <div className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-white text-lg bg-slate-400 shadow-sm shadow-slate-200">
+              <div className="w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center font-bold text-white text-sm md:text-lg bg-slate-400 shadow-sm shadow-slate-200">
                 2nd
               </div>
             )}
             {peringkat === 3 && (
-              <div className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-white text-lg bg-orange-500 shadow-sm shadow-orange-200">
+              <div className="w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center font-bold text-white text-sm md:text-lg bg-orange-500 shadow-sm shadow-orange-200">
                 3rd
               </div>
             )}
@@ -214,8 +209,8 @@ export default function DashboardPage() {
           </div>
 
           {/* Persentase Visual */}
-          <div className="text-right">
-            <p className={`text-2xl font-black ${
+          <div className="text-right flex-shrink-0">
+            <p className={`text-lg md:text-2xl font-black ${
               idx === 0 ? 'text-amber-600' : idx === 1 ? 'text-slate-500' : 'text-orange-600'
             }`}>
               {(h.skorAkhir * 100).toFixed(1)}%

@@ -1,209 +1,315 @@
 import ProtectedPage from '@/components/ProtectedPage'
+import PageHeader from '@/components/ui/PageHeader'
+import Card from '@/components/ui/Card'
+
+const developers = [
+  {
+    name: 'Nama Pengembang 1',
+    role: 'Full Stack Developer',
+    nim: '2210000001',
+    avatar: '👨‍💻',
+    color: 'bg-indigo-100 dark:bg-indigo-900/40',
+    textColor: 'text-indigo-600 dark:text-indigo-400',
+  },
+  {
+    name: 'Nama Pengembang 2',
+    role: 'UI/UX Designer',
+    nim: '2210000002',
+    avatar: '👩‍🎨',
+    color: 'bg-emerald-100 dark:bg-emerald-900/40',
+    textColor: 'text-emerald-600 dark:text-emerald-400',
+  },
+  {
+    name: 'Nama Pengembang 3',
+    role: 'Backend Developer',
+    nim: '2210000003',
+    avatar: '👨‍🔧',
+    color: 'bg-amber-100 dark:bg-amber-900/40',
+    textColor: 'text-amber-600 dark:text-amber-400',
+  },
+  {
+    name: 'Nama Pengembang 4',
+    role: 'Database Engineer',
+    nim: '2210000004',
+    avatar: '👩‍💻',
+    color: 'bg-purple-100 dark:bg-purple-900/40',
+    textColor: 'text-purple-600 dark:text-purple-400',
+  },
+]
+
+function SectionHeader({
+  icon,
+  title,
+  subtitle,
+}: {
+  icon: React.ReactNode
+  title: string
+  subtitle?: string
+}) {
+  return (
+    <div className="flex items-center gap-3 pb-4 mb-5 border-b border-slate-100 dark:border-slate-700">
+      <div className="flex-shrink-0">{icon}</div>
+      <div>
+        <h2 className="text-lg font-bold text-slate-900">{title}</h2>
+        {subtitle && <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>}
+      </div>
+    </div>
+  )
+}
 
 export default function TentangPage() {
   return (
     <ProtectedPage>
-      <div className="p-8 max-w-5xl">
-        <div className="mb-12">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
-              <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h1 className="text-4xl font-bold text-slate-900">Tentang SPK SAW</h1>
-          </div>
-          <p className="text-lg text-slate-600 leading-relaxed">
-            Sistem Penunjang Keputusan berbasis Simple Additive Weighting yang dirancang untuk membantu pengambilan keputusan objektif dengan menganalisis berbagai kriteria secara sistematis dan terukur.
-          </p>
-        </div>
+      <PageHeader
+        title="Tentang SPK SAW"
+        description="Sistem Penunjang Keputusan berbasis Simple Additive Weighting untuk pengambilan keputusan yang objektif dan terukur."
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/' },
+          { label: 'Tentang' },
+        ]}
+        icon={
+          <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        }
+      />
 
-        <div className="space-y-8">
-          {/* Apa itu SPK */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+      <div className="px-4 md:px-8 pb-8 max-w-4xl space-y-5">
+
+        {/* Apa itu SPK */}
+        <Card>
+          <SectionHeader
+            icon={
+              <div className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
               </div>
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold text-slate-900 mb-3">Apa itu Sistem Penunjang Keputusan?</h2>
-                <p className="text-slate-700 leading-relaxed mb-4">
-                  Sistem Penunjang Keputusan (SPK) atau Decision Support System (DSS) adalah sistem berbasis komputer yang dirancang untuk membantu pengambilan keputusan dengan menyediakan analisis data, model bisnis, dan simulasi untuk mendukung proses pengambilan keputusan.
-                </p>
-                <p className="text-slate-700 leading-relaxed">
-                  SPK bertujuan untuk meningkatkan efektivitas pengambilan keputusan dengan memberikan informasi yang terstruktur, akurat, dan relevan. Sistem ini menggabungkan data, model analitis, dan pengetahuan untuk menghasilkan rekomendasi yang objektif.
-                </p>
-              </div>
-            </div>
+            }
+            title="Apa itu Sistem Penunjang Keputusan?"
+            subtitle="Tentang DSS dan tujuannya"
+          />
+          <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            <p>
+              Sistem Penunjang Keputusan (SPK) atau <strong className="text-slate-800 dark:text-slate-200">Decision Support System (DSS)</strong> adalah sistem berbasis komputer yang dirancang untuk membantu pengambilan keputusan dengan menyediakan analisis data, model bisnis, dan simulasi.
+            </p>
+            <p>
+              SPK bertujuan meningkatkan efektivitas pengambilan keputusan dengan memberikan informasi yang terstruktur, akurat, dan relevan — menggabungkan data, model analitis, dan pengetahuan untuk menghasilkan rekomendasi yang objektif.
+            </p>
           </div>
+        </Card>
 
-          {/* Algoritma SAW */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {/* Algoritma SAW */}
+        <Card>
+          <SectionHeader
+            icon={
+              <div className="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+                <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold text-slate-900 mb-3">Algoritma Simple Additive Weighting (SAW)</h2>
-                <p className="text-slate-700 leading-relaxed mb-4">
-                  Simple Additive Weighting (SAW) adalah metode pengambilan keputusan multi-kriteria yang paling sederhana namun sangat efektif. Metode ini mengalikan setiap nilai bobot dengan rating yang telah dinormalisasi dari setiap alternatif untuk setiap atribut, kemudian menjumlahkannya.
-                </p>
-                
-                <div className="bg-slate-50 rounded-xl p-4 my-4 border border-slate-200">
-                  <h3 className="font-semibold text-slate-800 mb-3">Keunggulan Metode SAW:</h3>
-                  <ul className="space-y-2">
-                    <li className="flex items-start gap-3">
-                      <span className="inline-block w-6 h-6 rounded-full bg-emerald-200 flex items-center justify-center text-sm font-semibold text-emerald-700 flex-shrink-0">1</span>
-                      <span className="text-slate-700">Mudah diimplementasikan dan dipahami oleh semua pengguna</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-block w-6 h-6 rounded-full bg-emerald-200 flex items-center justify-center text-sm font-semibold text-emerald-700 flex-shrink-0">2</span>
-                      <span className="text-slate-700">Mampu mengakomodasi berbagai jumlah kriteria dan alternatif</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-block w-6 h-6 rounded-full bg-emerald-200 flex items-center justify-center text-sm font-semibold text-emerald-700 flex-shrink-0">3</span>
-                      <span className="text-slate-700">Menghasilkan skor yang transparan dan dapat dilacak</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="inline-block w-6 h-6 rounded-full bg-emerald-200 flex items-center justify-center text-sm font-semibold text-emerald-700 flex-shrink-0">4</span>
-                      <span className="text-slate-700">Fleksibel dalam pembobotan kriteria sesuai preferensi</span>
-                    </li>
-                  </ul>
-                </div>
+            }
+            title="Algoritma Simple Additive Weighting (SAW)"
+            subtitle="Metode perhitungan yang digunakan"
+          />
 
-                <h3 className="font-semibold text-slate-800 mb-3">Langkah-Langkah Perhitungan SAW:</h3>
-                <ol className="list-decimal list-inside space-y-2 text-slate-700">
-                  <li><strong>Normalisasi Matriks Keputusan:</strong> Mengubah nilai raw data menjadi nilai normalisasi (0-1) untuk benefit: r_ij = x_ij / max(x_ij) dan cost: r_ij = min(x_ij) / x_ij</li>
-                  <li><strong>Pembobotan:</strong> Mengalikan setiap nilai normalisasi dengan bobot kriteria yang telah ditetapkan</li>
-                  <li><strong>Penjumlahan Terbobot:</strong> Menjumlahkan hasil perkalian untuk mendapatkan skor akhir setiap alternatif</li>
-                  <li><strong>Ranking:</strong> Mengurutkan alternatif berdasarkan skor akhir dari tertinggi ke terendah</li>
-                </ol>
-              </div>
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-5">
+            SAW adalah metode pengambilan keputusan multi-kriteria yang sederhana namun efektif — mengalikan setiap nilai bobot dengan rating yang telah dinormalisasi, kemudian menjumlahkannya untuk menghasilkan skor akhir.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Keunggulan */}
+            <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4 border border-emerald-100 dark:border-emerald-800">
+              <h3 className="text-sm font-semibold text-emerald-800 dark:text-emerald-300 mb-3">Keunggulan Metode SAW</h3>
+              <ul className="space-y-2">
+                {[
+                  'Mudah diimplementasikan dan dipahami',
+                  'Mendukung banyak kriteria dan alternatif',
+                  'Skor transparan dan dapat dilacak',
+                  'Pembobotan fleksibel sesuai preferensi',
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-300">
+                    <svg className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Langkah */}
+            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4 border border-slate-200 dark:border-slate-600">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Langkah Perhitungan</h3>
+              <ol className="space-y-2">
+                {[
+                  { label: 'Normalisasi', desc: 'Benefit: xij / max — Cost: min / xij' },
+                  { label: 'Pembobotan', desc: 'Kalikan normalisasi × bobot kriteria' },
+                  { label: 'Penjumlahan', desc: 'Jumlahkan semua hasil perkalian' },
+                  { label: 'Ranking', desc: 'Urutkan dari skor tertinggi' },
+                ].map((step, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm">
+                    <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-300 flex-shrink-0 mt-0.5">{i + 1}</span>
+                    <span className="text-slate-600 dark:text-slate-300">
+                      <strong className="text-slate-700 dark:text-slate-200">{step.label}:</strong> {step.desc}
+                    </span>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
+        </Card>
 
-          {/* Fitur Utama */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {/* Fitur Utama */}
+        <Card>
+          <SectionHeader
+            icon={
+              <div className="w-9 h-9 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold text-slate-900 mb-4">Fitur-Fitur Utama</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[
-                    {
-                      judul: 'Kelola Kriteria',
-                      desc: 'Tambah, edit, dan hapus kriteria penilaian dengan bobot yang dapat dikonfigurasi sesuai preferensi',
-                    },
-                    {
-                      judul: 'Kelola Alternatif',
-                      desc: 'Mengelola daftar lengkap alternatif atau opsi yang akan dievaluasi dalam sistem',
-                    },
-                    {
-                      judul: 'Matriks Penilaian',
-                      desc: 'Masukkan skor evaluasi untuk setiap kombinasi alternatif dan kriteria dalam format tabel interaktif',
-                    },
-                    {
-                      judul: 'Laporan Hasil',
-                      desc: 'Lihat detail lengkap perhitungan SAW dengan normalisasi, bobot, dan skor akhir',
-                    },
-                    {
-                      judul: 'Leaderboard',
-                      desc: 'Visualisasi ranking alternatif berdasarkan skor SAW dengan grafik yang mudah dipahami',
-                    },
-                    {
-                      judul: 'Dashboard Ringkasan',
-                      desc: 'Pantau statistik utama, status validasi bobot, dan peringkat teratas dalam satu layar',
-                    },
-                  ].map((fitur) => (
-                    <div key={fitur.judul} className="p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-amber-200 hover:bg-amber-50 transition-all">
-                      <h3 className="font-semibold text-slate-800 mb-2">{fitur.judul}</h3>
-                      <p className="text-sm text-slate-600">{fitur.desc}</p>
-                    </div>
-                  ))}
+            }
+            title="Fitur-Fitur Utama"
+            subtitle="Apa saja yang bisa dilakukan di sistem ini"
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {[
+              { judul: 'Kelola Kriteria', desc: 'Tambah, edit, dan hapus kriteria dengan bobot yang dapat dikonfigurasi', icon: '⚖️' },
+              { judul: 'Kelola Alternatif', desc: 'Mengelola daftar alternatif yang akan dievaluasi dalam sistem', icon: '📚' },
+              { judul: 'Matriks Penilaian', desc: 'Input skor evaluasi untuk setiap kombinasi alternatif dan kriteria', icon: '📊' },
+              { judul: 'Laporan Hasil', desc: 'Detail lengkap perhitungan SAW dengan normalisasi dan skor akhir', icon: '📋' },
+              { judul: 'Leaderboard', desc: 'Visualisasi ranking alternatif berdasarkan skor SAW', icon: '🏆' },
+              { judul: 'Dashboard', desc: 'Pantau statistik utama, status bobot, dan peringkat teratas', icon: '🖥️' },
+            ].map((fitur) => (
+              <div key={fitur.judul} className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600 hover:border-amber-200 dark:hover:border-amber-700 transition-colors">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-base">{fitur.icon}</span>
+                  <h3 className="text-sm font-semibold text-slate-800">{fitur.judul}</h3>
                 </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{fitur.desc}</p>
               </div>
-            </div>
+            ))}
           </div>
+        </Card>
 
-          {/* Stack Teknologi */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Stack Teknologi</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { nama: 'Next.js 14', desc: 'React Framework', icon: '⚛️' },
-                { nama: 'TypeScript', desc: 'Type Safety', icon: '🔷' },
-                { nama: 'Tailwind CSS', desc: 'Styling', icon: '🎨' },
-                { nama: 'Supabase', desc: 'Backend', icon: '🗄️' },
-                { nama: 'PostgreSQL', desc: 'Database', icon: '🐘' },
-                { nama: 'React Hooks', desc: 'State Mgmt', icon: '🪝' },
-                { nama: 'Vercel', desc: 'Hosting', icon: '▲' },
-                { nama: 'Git', desc: 'Version Control', icon: '🌳' },
-              ].map((tech) => (
-                <div key={tech.nama} className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 border border-slate-200 hover:shadow-md transition-shadow">
-                  <p className="text-sm font-bold text-slate-800 mb-1">{tech.nama}</p>
-                  <p className="text-xs text-slate-600">{tech.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Cara Penggunaan */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        {/* Stack Teknologi */}
+        <Card>
+          <SectionHeader
+            icon={
+              <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                <svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                 </svg>
               </div>
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold text-slate-900 mb-4">Cara Penggunaan</h2>
-                <ol className="space-y-3">
-                  {[
-                    'Tentukan kriteria penilaian beserta bobot masing-masing. Pastikan total bobot = 1.00',
-                    'Masukkan daftar alternatif yang ingin dievaluasi (misalnya: mata kuliah, produk, dll)',
-                    'Isi matriks penilaian dengan skor untuk setiap kombinasi alternatif dan kriteria',
-                    'Sistem akan secara otomatis menghitung normalisasi, bobot, dan skor akhir SAW',
-                    'Lihat laporan lengkap dengan grafik dan visualisasi hasil ranking',
-                  ].map((step, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-purple-200 flex items-center justify-center text-xs font-bold text-purple-700 flex-shrink-0">
-                        {idx + 1}
-                      </div>
-                      <p className="text-slate-700 pt-0.5">{step}</p>
-                    </div>
-                  ))}
-                </ol>
+            }
+            title="Stack Teknologi"
+            subtitle="Teknologi yang digunakan dalam pengembangan"
+          />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { nama: 'Next.js 14', desc: 'React Framework', icon: '⚛️' },
+              { nama: 'TypeScript', desc: 'Type Safety', icon: '🔷' },
+              { nama: 'Tailwind CSS', desc: 'Styling', icon: '🎨' },
+              { nama: 'Supabase', desc: 'Backend & Auth', icon: '🗄️' },
+              { nama: 'PostgreSQL', desc: 'Database', icon: '🐘' },
+              { nama: 'React Hooks', desc: 'State Mgmt', icon: '🪝' },
+              { nama: 'Vercel', desc: 'Hosting', icon: '▲' },
+              { nama: 'Git', desc: 'Version Control', icon: '🌳' },
+            ].map((tech) => (
+              <div key={tech.nama} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-200 dark:border-slate-600">
+                <span className="text-xl flex-shrink-0">{tech.icon}</span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-800 truncate">{tech.nama}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{tech.desc}</p>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
+        </Card>
 
-          {/* Kontak & Support */}
-          <div className="bg-gradient-to-r from-blue-900 to-cyan-700 rounded-2xl p-8 text-white">
-            <h2 className="text-2xl font-bold mb-3">Punya Pertanyaan atau Masukan?</h2>
-            <p className="text-blue-100 mb-6">
-              Kami terus mengembangkan sistem ini untuk memberikan pengalaman terbaik dalam pengambilan keputusan. Jika Anda memiliki saran, pertanyaan, atau menemukan bug, silakan hubungi tim pengembang kami.
-            </p>
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4">
-              <p className="text-sm font-medium text-blue-100">
-                Hubungi: <span className="text-white font-semibold">support@spksaw.dev</span>
-              </p>
-              <p className="text-sm text-blue-200 mt-2">
-                Respons time: Biasanya dalam 24 jam kerja
-              </p>
-            </div>
-            <p className="text-xs text-blue-200 mt-8 pt-6 border-t border-white/10">
-              © 2026 SPK SAW System. Semua hak dilindungi. Dikembangkan untuk pengambilan keputusan yang lebih baik dan lebih objektif.
-            </p>
+        {/* Cara Penggunaan */}
+        <Card>
+          <SectionHeader
+            icon={
+              <div className="w-9 h-9 rounded-lg bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center">
+                <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+            }
+            title="Cara Penggunaan"
+            subtitle="Langkah-langkah menggunakan sistem"
+          />
+          <ol className="space-y-3">
+            {[
+              { step: 'Tentukan kriteria penilaian beserta bobot masing-masing. Pastikan total bobot = 1.00' },
+              { step: 'Masukkan daftar alternatif yang ingin dievaluasi (misalnya: mata kuliah, produk, dll)' },
+              { step: 'Isi matriks penilaian dengan skor untuk setiap kombinasi alternatif dan kriteria' },
+              { step: 'Sistem akan otomatis menghitung normalisasi, bobot, dan skor akhir SAW' },
+              { step: 'Lihat laporan lengkap dan visualisasi hasil ranking di halaman Laporan & Leaderboard' },
+            ].map((item, idx) => (
+              <li key={idx} className="flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-xs font-bold text-purple-700 dark:text-purple-300 flex-shrink-0 mt-0.5">
+                  {idx + 1}
+                </span>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed pt-0.5">{item.step}</p>
+              </li>
+            ))}
+          </ol>
+        </Card>
+
+        {/* Tim Pengembang */}
+        <Card>
+          <SectionHeader
+            icon={
+              <div className="w-9 h-9 rounded-lg bg-cyan-100 dark:bg-cyan-900/40 flex items-center justify-center">
+                <svg className="w-5 h-5 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+            }
+            title="Tim Pengembang"
+            subtitle="Dikembangkan oleh mahasiswa Universitas Andalas"
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {developers.map((dev, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/40"
+              >
+                <div className={`w-12 h-12 rounded-xl ${dev.color} flex items-center justify-center text-xl flex-shrink-0`}>
+                  {dev.avatar}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-slate-900 text-sm truncate">{dev.name}</p>
+                  <p className={`text-xs font-medium mt-0.5 ${dev.textColor}`}>{dev.role}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 font-mono">{dev.nim}</p>
+                </div>
+              </div>
+            ))}
           </div>
+        </Card>
+
+        {/* Kontak */}
+        <div className="bg-gradient-to-r from-blue-900 to-cyan-700 rounded-2xl p-6 md:p-8 text-white">
+          <h2 className="text-lg font-bold mb-2">Punya Pertanyaan atau Masukan?</h2>
+          <p className="text-blue-100 text-sm mb-5 leading-relaxed">
+            Kami terus mengembangkan sistem ini. Jika Anda memiliki saran, pertanyaan, atau menemukan bug, silakan hubungi tim pengembang kami.
+          </p>
+          <div className="bg-white/10 border border-white/20 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-2">
+            <svg className="w-4 h-4 text-blue-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span className="text-sm text-blue-100">support@spksaw.dev</span>
+            <span className="hidden sm:block text-blue-400">·</span>
+            <span className="text-xs text-blue-300">Respons dalam 24 jam kerja</span>
+          </div>
+          <p className="text-xs text-blue-300/60 mt-5 pt-4 border-t border-white/10">
+            © 2026 SPK SAW System · Universitas Andalas
+          </p>
         </div>
+
       </div>
     </ProtectedPage>
   )

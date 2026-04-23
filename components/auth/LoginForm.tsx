@@ -55,7 +55,7 @@ export default function LoginForm() {
   // Tampilan Form Login (Setelah klik "Masuk dengan Akun")
   if (showLogin) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-900 to-blue-950 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="light min-h-screen bg-gradient-to-br from-blue-900 via-blue-900 to-blue-950 flex items-center justify-center p-4 relative overflow-hidden">
         {/* Dekorasi Background - Cyan & Blue Glow */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-cyan-500/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
@@ -131,7 +131,7 @@ export default function LoginForm() {
 
   // Tampilan Welcome (Landing Page awal)
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-900 to-blue-950 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="light min-h-screen bg-gradient-to-br from-blue-900 via-blue-900 to-blue-950 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background decoration - Ambient White/Cyan */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>

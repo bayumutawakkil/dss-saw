@@ -29,9 +29,9 @@ export default function Button({
 
   const variantClass = {
     primary: 'bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 shadow-sm hover:shadow-md',
-    secondary: 'bg-slate-200 text-slate-800 hover:bg-slate-300 active:bg-slate-400',
+    secondary: 'bg-slate-200 text-slate-800 hover:bg-slate-300 active:bg-slate-400 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600',
     danger: 'bg-red-600 text-white hover:bg-red-700 active:bg-red-800',
-    ghost: 'text-slate-700 hover:bg-slate-100 active:bg-slate-200',
+    ghost: 'text-slate-700 hover:bg-slate-100 active:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700',
   }[variant]
 
   const widthClass = fullWidth ? 'w-full' : ''

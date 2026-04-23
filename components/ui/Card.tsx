@@ -16,9 +16,9 @@ export default function Card({
   shadow = 'sm',
 }: CardProps) {
   const paddingClass = {
-    sm: 'p-4',
-    md: 'p-6',
-    lg: 'p-8',
+    sm: 'p-3 md:p-4',
+    md: 'p-4 md:p-6',
+    lg: 'p-5 md:p-8',
   }[padding]
 
   const shadowClass = {
@@ -28,11 +28,11 @@ export default function Card({
     none: '',
   }[shadow]
 
-  const borderClass = border ? 'border border-slate-200' : ''
+  const borderClass = border ? 'border border-slate-200 dark:border-slate-700' : ''
 
   return (
     <div
-      className={`bg-white rounded-2xl ${borderClass} ${shadowClass} transition-shadow duration-200 ${paddingClass} ${className}`}
+      className={`bg-white dark:bg-slate-800 rounded-2xl ${borderClass} ${shadowClass} transition-shadow duration-200 ${paddingClass} ${className}`}
     >
       {children}
     </div>

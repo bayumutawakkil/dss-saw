@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
 import type { Kriteria } from '@/lib/supabase'
 import KriteriaForm from '@/components/forms/KriteriaForm'
 import ProtectedPage from '@/components/ProtectedPage'
@@ -11,11 +11,7 @@ import Button from '@/components/ui/Button'
 import Alert from '@/components/ui/Alert'
 import EmptyState from '@/components/ui/EmptyState'
 import Modal from '@/components/ui/Modal'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
 
 export default function KriteriaPage() {
   const [kriteriaList, setKriteriaList] = useState<Kriteria[]>([])
@@ -78,16 +74,7 @@ export default function KriteriaPage() {
           { label: 'Dashboard', href: '/' },
           { label: 'Kriteria' },
         ]}
-        icon={
-          <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-        }
-      />
-
-      <div className="px-8 pb-8">
-        {/* Button Tambah Kriteria */}
-        <div className="mb-6 flex justify-end">
+        actions={
           <Button
             variant="primary"
             onClick={() => {
@@ -102,7 +89,15 @@ export default function KriteriaPage() {
           >
             Tambah Kriteria
           </Button>
-        </div>
+        }
+        icon={
+          <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        }
+      />
+
+      <div className="px-4 md:px-8 pb-8">
 
         {/* Validasi total bobot */}
         <Card className="mb-6">
@@ -121,10 +116,10 @@ export default function KriteriaPage() {
               </div>
             )}
             <div className="flex-1">
-              <h3 className={`font-semibold ${isBobotValid ? 'text-emerald-900' : 'text-amber-900'}`}>
+              <h3 className={`font-semibold ${isBobotValid ? 'text-emerald-900 dark:text-emerald-400' : 'text-amber-900 dark:text-amber-400'}`}>
                 Status Total Bobot: <span className="font-mono">{totalBobot.toFixed(3)}</span>
               </h3>
-              <p className={`text-sm mt-1 ${isBobotValid ? 'text-emerald-700' : 'text-amber-700'}`}>
+              <p className={`text-sm mt-1 ${isBobotValid ? 'text-emerald-700 dark:text-emerald-500' : 'text-amber-700 dark:text-amber-500'}`}>
                 {isBobotValid 
                   ? 'Semua kriteria sudah terkonfigurasi dengan valid. Total bobot = 1.00'
                   : 'Jumlah bobot kriteria harus tepat 1.00 untuk perhitungan yang akurat'}
@@ -143,14 +138,7 @@ export default function KriteriaPage() {
           </div>
 
           {loading ? (
-            <div className="py-12 text-center">
-              <div className="inline-block">
-                <svg className="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              </div>
-            </div>
+            <LoadingSkeleton count={4} height="md" />
           ) : kriteriaList.length === 0 ? (
             <EmptyState
               icon={

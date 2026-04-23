@@ -1,17 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
 import type { Alternatif } from '@/lib/supabase'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Alert from '@/components/ui/Alert'
-import Card from '@/components/ui/Card'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 interface AlternatifFormProps {
   onSuccess: () => void
@@ -38,23 +32,15 @@ export default function AlternatifForm({ onSuccess, editingItem }: AlternatifFor
       }
 
       if (editingItem) {
-        // Update
         const { error: updateError } = await supabase
           .from('alternatif')
-          .update({
-            nama_mata_kuliah: namaMataKuliah,
-          })
+          .update({ nama_mata_kuliah: namaMataKuliah })
           .eq('id', editingItem.id)
-
         if (updateError) throw updateError
       } else {
-        // Create
         const { error: insertError } = await supabase
           .from('alternatif')
-          .insert({
-            nama_mata_kuliah: namaMataKuliah,
-          })
-
+          .insert({ nama_mata_kuliah: namaMataKuliah })
         if (insertError) throw insertError
       }
 
@@ -62,42 +48,21 @@ export default function AlternatifForm({ onSuccess, editingItem }: AlternatifFor
       setNamaMataKuliah('')
       setTimeout(() => onSuccess(), 500)
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Gagal menyimpan data'
-      setError(errorMessage)
+      setError(err instanceof Error ? err.message : 'Gagal menyimpan data')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <Card className="mb-6">
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-slate-800">
-          {editingItem ? '✏️ Edit Alternatif' : '➕ Tambah Alternatif Baru'}
-        </h2>
-        <p className="text-slate-600 text-sm mt-1">
-          {editingItem ? 'Perbarui nama alternatif/mata kuliah' : 'Buat alternatif baru untuk penilaian'}
-        </p>
-      </div>
-
-      {error && (
-        <div className="mb-4">
-          <Alert
-            type="error"
-            message={error}
-            onClose={() => setError('')}
-          />
-        </div>
-      )}
-
+    <div className="space-y-4">
+      {error && <Alert type="error" message={error} onClose={() => setError('')} />}
       {success && (
-        <div className="mb-4">
-          <Alert
-            type="success"
-            message={editingItem ? 'Alternatif berhasil diperbarui' : 'Alternatif berhasil ditambahkan'}
-            onClose={() => setSuccess(false)}
-          />
-        </div>
+        <Alert
+          type="success"
+          message={editingItem ? 'Alternatif berhasil diperbarui' : 'Alternatif berhasil ditambahkan'}
+          onClose={() => setSuccess(false)}
+        />
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -113,17 +78,10 @@ export default function AlternatifForm({ onSuccess, editingItem }: AlternatifFor
           }
         />
 
-        <div className="flex gap-3 pt-4">
-          <Button
-            type="submit"
-            loading={loading}
-            fullWidth
-            variant="secondary"
-          >
-            {editingItem ? 'Update Alternatif' : 'Tambah Alternatif'}
-          </Button>
-        </div>
+        <Button type="submit" loading={loading} fullWidth>
+          {editingItem ? 'Update Alternatif' : 'Tambah Alternatif'}
+        </Button>
       </form>
-    </Card>
+    </div>
   )
 }

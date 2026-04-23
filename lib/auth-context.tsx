@@ -2,13 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
-import { createClient } from '@supabase/supabase-js'
-
-// Client-side Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { supabase } from '@/lib/supabase'
 
 interface AuthContextType {
   user: User | null
@@ -26,8 +20,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check stored guest status
-    const storedGuestStatus = localStorage.getItem('isGuest')
+    // Check stored guest status (sessionStorage so it expires when tab closes)
+    const storedGuestStatus = sessionStorage.getItem('isGuest')
     if (storedGuestStatus === 'true') {
       setIsGuest(true)
     }
@@ -54,12 +48,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut()
     setUser(null)
     setIsGuest(false)
-    localStorage.removeItem('isGuest')
+    sessionStorage.removeItem('isGuest')
   }
 
   const loginAsGuest = () => {
     setIsGuest(true)
-    localStorage.setItem('isGuest', 'true')
+    sessionStorage.setItem('isGuest', 'true')
     setLoading(false)
   }
 

@@ -20,8 +20,8 @@ export default function LoadingSkeleton({
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className={`${heightClass} bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-lg animate-pulse`}
-        ></div>
+          className={`${heightClass} bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 rounded-lg animate-pulse`}
+        />
       ))}
     </div>
   )

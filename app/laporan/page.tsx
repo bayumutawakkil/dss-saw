@@ -1,35 +1,21 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
+import { calculateSAW } from '@/lib/calculateSAW'
 import type { Kriteria, Alternatif, Penilaian } from '@/lib/supabase'
 import ProtectedPage from '@/components/ProtectedPage'
 import PageHeader from '@/components/ui/PageHeader'
 import Card from '@/components/ui/Card'
-
-
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
-interface Result {
-  alternatifId: number
-  alternatifName: string
-  rawScores: number[]
-  normalizedScores: number[]
-  finalScore: number
-  rank: number
-}
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
 
 export default function LaporanPage() {
   const [kriteria, setKriteria] = useState<Kriteria[]>([])
   const [alternatif, setAlternatif] = useState<Alternatif[]>([])
   const [penilaian, setPenilaian] = useState<Penilaian[]>([])
   const [loading, setLoading] = useState(true)
-  const [showNormalized, setShowNormalized] = useState(false)
-  const [showResults, setShowResults] = useState(false)
+  const [showNormalized, setShowNormalized] = useState(true)
+  const [showResults, setShowResults] = useState(true)
   
 
   useEffect(() => {
@@ -52,87 +38,51 @@ export default function LaporanPage() {
     loadData()
   }, [])
 
-  const calculateResults = (): Result[] => {
-    if (kriteria.length === 0 || alternatif.length === 0 || penilaian.length === 0) return []
+  // Use shared calculateSAW — single source of truth
+  const sawResults = calculateSAW(alternatif, kriteria, penilaian)
 
-    const getRawScore = (altId: number, kriId: number): number => {
-      const p = penilaian.find((x) => x.alternatif_id === altId && x.kriteria_id === kriId)
+  // Map to display format used by this page's template
+  const results = sawResults.map((h) => ({
+    alternatifId: h.alternatif.id,
+    alternatifName: h.alternatif.nama_mata_kuliah,
+    rawScores: kriteria.map((k) => {
+      const p = penilaian.find((x) => x.alternatif_id === h.alternatif.id && x.kriteria_id === k.id)
       return p?.nilai ?? 0
-    }
+    }),
+    normalizedScores: kriteria.map((k) => h.nilaiNormalisasi[k.id] ?? 0),
+    finalScore: h.skorAkhir,
+    rank: h.peringkat,
+  }))
 
-    const rawMatrix: number[][] = []
-    alternatif.forEach((alt) => {
-      const row: number[] = []
-      kriteria.forEach((k) => {
-        row.push(getRawScore(alt.id, k.id))
-      })
-      rawMatrix.push(row)
-    })
-
-    const maxValues: number[] = []
-    const minValues: number[] = []
-    kriteria.forEach((_, kriIdx) => {
-      let max = 0
-      let min = Infinity
-      alternatif.forEach((_, altIdx) => {
-        const val = rawMatrix[altIdx][kriIdx]
-        if (val > max) max = val
-        if (val > 0 && val < min) min = val
-      })
-      maxValues.push(max)
-      minValues.push(min === Infinity ? 0 : min)
-    })
-
-    const results: Result[] = alternatif.map((alt, altIdx) => {
-      const rawScores = rawMatrix[altIdx]
-      const normalizedScores = rawScores.map((score, kriIdx) => {
-        if (score === 0) return 0
-        if (kriteria[kriIdx].jenis === 'benefit') {
-          return maxValues[kriIdx] === 0 ? 0 : score / maxValues[kriIdx]
-        } else {
-          return minValues[kriIdx] === 0 || score === 0 ? 0 : minValues[kriIdx] / score
-        }
-      })
-
-      let finalScore = 0
-      normalizedScores.forEach((normScore, kriIdx) => {
-        finalScore += kriteria[kriIdx].bobot * normScore
-      })
-
-      return {
-        alternatifId: alt.id,
-        alternatifName: alt.nama_mata_kuliah,
-        rawScores,
-        normalizedScores,
-        finalScore: Math.round(finalScore * 10000) / 10000,
-        rank: 0,
-      }
-    })
-
-    results.sort((a, b) => b.finalScore - a.finalScore)
-    results.forEach((r, idx) => {
-      r.rank = idx + 1
-    })
-
-    return results
-  }
-
-  const results = calculateResults()
-
-  // Ambil angka Maksimum Global untuk semua kriteria Benefit
+  // Global max/min for formula display
   const globalMax = kriteria.some(k => k.jenis === 'benefit')
-    ? Math.max(...results.flatMap(r => r.rawScores.filter((_, i) => kriteria[i].jenis === 'benefit')))
-    : 0;
-
-  // Ambil angka Minimum Global untuk semua kriteria Cost
-  const costScores = results.flatMap(r => r.rawScores.filter((_, i) => kriteria[i].jenis === 'cost')).filter(v => v > 0);
-  const globalMin = costScores.length > 0 ? Math.min(...costScores) : 0;
+    ? Math.max(...results.flatMap(r => r.rawScores.filter((_, i) => kriteria[i]?.jenis === 'benefit')), 0)
+    : 0
+  const costScores = results.flatMap(r => r.rawScores.filter((_, i) => kriteria[i]?.jenis === 'cost')).filter(v => v > 0)
+  const globalMin = costScores.length > 0 ? Math.min(...costScores) : 0
   
 
   if (loading) {
     return (
       <ProtectedPage>
-        <div className="py-12 text-center text-slate-900 font-semibold">Memuat laporan...</div>
+        <PageHeader
+          title="Laporan Hasil Keputusan"
+          description="Hasil evaluasi algoritma Simple Additive Weighting (SAW) berdasarkan data matriks terkini"
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/' },
+            { label: 'Laporan' },
+          ]}
+          icon={
+            <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+          }
+        />
+        <div className="px-4 md:px-8 pb-8">
+          <Card>
+            <LoadingSkeleton count={4} height="lg" />
+          </Card>
+        </div>
       </ProtectedPage>
     )
   }
@@ -142,6 +92,10 @@ export default function LaporanPage() {
       <PageHeader
         title="Laporan Hasil Keputusan"
         description="Hasil evaluasi algoritma Simple Additive Weighting (SAW) berdasarkan data matriks terkini"
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/' },
+          { label: 'Laporan' },
+        ]}
         icon={
           <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -149,12 +103,12 @@ export default function LaporanPage() {
         }
       />
 
-      <div className="px-8 pb-8">
+      <div className="px-4 md:px-8 pb-8">
         {/* Section 1: Raw Matrix */}
         <Card className="mb-8">
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-slate-950">1. Matriks Keputusan Awal (X)</h2>
-            <p className="text-sm text-slate-700 mt-1">Data skor mentah dari setiap alternatif kriteria</p>
+            <h2 className="text-xl font-bold text-slate-950 dark:text-slate-100">1. Matriks Keputusan Awal (X)</h2>
+            <p className="text-sm text-slate-700 dark:text-slate-400 mt-1">Data skor mentah dari setiap alternatif kriteria</p>
           </div>
 
           <div className="overflow-x-auto -mx-6 px-6">
@@ -190,7 +144,7 @@ export default function LaporanPage() {
                     ))}
                   </tr>
                 ))}
-                <tr className="border-t-4 border-slate-100 bg-slate-50/30">
+                <tr className="border-t-4 border-slate-100 bg-slate-50">
   <td className="px-5 py-6">
     <div className="flex flex-col">
       <span className="font-semibold text-slate-950">
@@ -225,8 +179,8 @@ export default function LaporanPage() {
           inline-flex flex-col items-center justify-center 
           w-28 py-2.5 rounded-lg border
           ${isBenefit 
-            ? 'bg-emerald-50/50 border-emerald-200 text-emerald-600' 
-            : 'bg-rose-50/50 border-rose-200 text-rose-600'}
+            ? 'bg-emerald-50/50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400' 
+            : 'bg-rose-50/50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-700 text-rose-600 dark:text-rose-400'}
         `}>
           {/* Label Tipis */}
           <span className="text-xs font-medium mb-1">
@@ -254,31 +208,31 @@ export default function LaporanPage() {
             className="w-full flex items-center justify-between group"
           >
             <div className="text-left">
-              <h2 className="text-xl font-bold text-slate-950">2. Matriks Normalisasi (R)</h2>
-              <p className="text-sm text-slate-700 mt-1">Hasil konversi nilai mentah menggunakan rumus Benefit/Cost</p>
+              <h2 className="text-xl font-bold text-slate-950 dark:text-slate-100">2. Matriks Normalisasi (R)</h2>
+              <p className="text-sm text-slate-700 dark:text-slate-400 mt-1">Hasil konversi nilai mentah menggunakan rumus Benefit/Cost</p>
             </div>
-            <span className="text-slate-950 group-hover:translate-y-1 transition-transform">{showNormalized ? '▲' : '▼'}</span>
+            <span className="text-slate-500 dark:text-slate-400 group-hover:translate-y-1 transition-transform">{showNormalized ? '▲' : '▼'}</span>
           </button>
 
           {showNormalized && (
             <div className="mt-6 space-y-6 animate-in fade-in duration-300">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
   {/* Kotak Rumus Benefit */}
-  <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-4">
-    <p className="text-[10px] font-medium text-emerald-600 uppercase tracking-widest mb-1">Rumus Benefit</p>
-    <p className="text-slate-600 font-normal italic text-sm">
-      Rij = Nilai Mentah / <span className="font-semibold text-emerald-700 not-italic">{globalMax.toFixed(2)}</span>
+  <div className="bg-emerald-50/50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-xl p-4">
+    <p className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Rumus Benefit</p>
+    <p className="text-slate-600 dark:text-slate-300 font-normal italic text-sm">
+      Rij = Nilai Mentah / <span className="font-semibold text-emerald-700 dark:text-emerald-400 not-italic">{globalMax.toFixed(2)}</span>
     </p>
-    <p className="text-[9px] text-slate-400 mt-1">*Angka didapat dari nilai maksimal pada matriks penilaian</p>
+    <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1">*Angka didapat dari nilai maksimal pada matriks penilaian</p>
   </div>
 
   {/* Kotak Rumus Cost */}
-  <div className="bg-rose-50/50 border border-rose-100 rounded-xl p-4">
-    <p className="text-[10px] font-medium text-rose-600 uppercase tracking-widest mb-1">Rumus Cost</p>
-    <p className="text-slate-600 font-normal italic text-sm">
-      Rij = <span className="font-semibold text-rose-700 not-italic">{globalMin.toFixed(2)}</span> / Nilai Mentah
+  <div className="bg-rose-50/50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800 rounded-xl p-4">
+    <p className="text-[10px] font-medium text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-1">Rumus Cost</p>
+    <p className="text-slate-600 dark:text-slate-300 font-normal italic text-sm">
+      Rij = <span className="font-semibold text-rose-700 dark:text-rose-400 not-italic">{globalMin.toFixed(2)}</span> / Nilai Mentah
     </p>
-    <p className="text-[9px] text-slate-400 mt-1">*Angka didapat dari nilai minimal pada matriks penilaian</p>
+    <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1">*Angka didapat dari nilai minimal pada matriks penilaian</p>
   </div>
 </div>
               <div className="overflow-x-auto -mx-6 px-6">
@@ -326,10 +280,10 @@ export default function LaporanPage() {
             className="w-full flex items-center justify-between group"
           >
             <div className="text-left">
-              <h2 className="text-xl font-bold text-slate-950">3. Perankingan Akhir</h2>
-              <p className="text-sm text-slate-700 mt-1">Urutan prioritas berdasarkan akumulasi bobot dan nilai normalisasi</p>
+              <h2 className="text-xl font-bold text-slate-950 dark:text-slate-100">3. Perankingan Akhir</h2>
+              <p className="text-sm text-slate-700 dark:text-slate-400 mt-1">Urutan prioritas berdasarkan akumulasi bobot dan nilai normalisasi</p>
             </div>
-            <span className="text-slate-950 group-hover:translate-y-1 transition-transform">{showResults ? '▲' : '▼'}</span>
+            <span className="text-slate-500 dark:text-slate-400 group-hover:translate-y-1 transition-transform">{showResults ? '▲' : '▼'}</span>
           </button>
 
           {showResults && (
@@ -357,10 +311,10 @@ export default function LaporanPage() {
 
         // Menentukan warna border dan teks berdasarkan peringkat
         const rankStyles = 
-          r.rank === 1 ? 'border-yellow-500 text-yellow-600 bg-yellow-50' : // Gold
-          r.rank === 2 ? 'border-slate-400 text-slate-500 bg-slate-50' :   // Silver
-          r.rank === 3 ? 'border-orange-700 text-orange-800 bg-orange-50' : // Bronze
-          'border-slate-950 text-slate-950'; // Default untuk rank > 3
+          r.rank === 1 ? 'border-yellow-500 text-yellow-600 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-600' :
+          r.rank === 2 ? 'border-slate-400 text-slate-500 bg-slate-50 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-500' :
+          r.rank === 3 ? 'border-orange-700 text-orange-800 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-600' :
+          'border-slate-400 text-slate-200 dark:border-slate-500 dark:text-slate-300';
 
         return (
           <tr key={r.alternatifId} className="hover:bg-slate-50 transition-colors">
@@ -375,7 +329,7 @@ export default function LaporanPage() {
               {calcStr}
             </td>
             <td className="px-6 py-5 text-right">
-              <span className={`text-xl font-black text-indigo-900 border-b-2 border-indigo-200 ${rankStyles}`}>
+              <span className={`text-xl font-black text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-200 dark:border-indigo-700`}>
                 {r.finalScore.toFixed(4)}
               </span>
             </td>

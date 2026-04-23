@@ -1,18 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
 import type { Kriteria } from '@/lib/supabase'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Alert from '@/components/ui/Alert'
-import Card from '@/components/ui/Card'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 interface KriteriaFormProps {
   onSuccess: () => void
@@ -48,27 +42,15 @@ export default function KriteriaForm({ onSuccess, editingItem }: KriteriaFormPro
       }
 
       if (editingItem) {
-        // Update
         const { error: updateError } = await supabase
           .from('kriteria')
-          .update({
-            nama_kriteria: namaKriteria,
-            bobot: bobotNum,
-            jenis,
-          })
+          .update({ nama_kriteria: namaKriteria, bobot: bobotNum, jenis })
           .eq('id', editingItem.id)
-
         if (updateError) throw updateError
       } else {
-        // Create
         const { error: insertError } = await supabase
           .from('kriteria')
-          .insert({
-            nama_kriteria: namaKriteria,
-            bobot: bobotNum,
-            jenis,
-          })
-
+          .insert({ nama_kriteria: namaKriteria, bobot: bobotNum, jenis })
         if (insertError) throw insertError
       }
 
@@ -78,42 +60,21 @@ export default function KriteriaForm({ onSuccess, editingItem }: KriteriaFormPro
       setJenis('benefit')
       setTimeout(() => onSuccess(), 500)
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Gagal menyimpan data'
-      setError(errorMessage)
+      setError(err instanceof Error ? err.message : 'Gagal menyimpan data')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <Card className="mb-6">
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-slate-800">
-          {editingItem ? '✏️ Edit Kriteria' : '➕ Tambah Kriteria Baru'}
-        </h2>
-        <p className="text-slate-600 text-sm mt-1">
-          {editingItem ? 'Perbarui data kriteria penilaian' : 'Buat kriteria baru untuk sistem penilaian'}
-        </p>
-      </div>
-
-      {error && (
-        <div className="mb-4">
-          <Alert
-            type="error"
-            message={error}
-            onClose={() => setError('')}
-          />
-        </div>
-      )}
-
+    <div className="space-y-4">
+      {error && <Alert type="error" message={error} onClose={() => setError('')} />}
       {success && (
-        <div className="mb-4">
-          <Alert
-            type="success"
-            message={editingItem ? 'Kriteria berhasil diperbarui' : 'Kriteria berhasil ditambahkan'}
-            onClose={() => setSuccess(false)}
-          />
-        </div>
+        <Alert
+          type="success"
+          message={editingItem ? 'Kriteria berhasil diperbarui' : 'Kriteria berhasil ditambahkan'}
+          onClose={() => setSuccess(false)}
+        />
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -146,7 +107,6 @@ export default function KriteriaForm({ onSuccess, editingItem }: KriteriaFormPro
               </svg>
             }
           />
-
           <Select
             label="Jenis Kriteria"
             value={jenis}
@@ -158,16 +118,10 @@ export default function KriteriaForm({ onSuccess, editingItem }: KriteriaFormPro
           />
         </div>
 
-        <div className="flex gap-3 pt-4">
-          <Button
-            type="submit"
-            loading={loading}
-            fullWidth
-          >
-            {editingItem ? 'Update Kriteria' : 'Tambah Kriteria'}
-          </Button>
-        </div>
+        <Button type="submit" loading={loading} fullWidth>
+          {editingItem ? 'Update Kriteria' : 'Tambah Kriteria'}
+        </Button>
       </form>
-    </Card>
+    </div>
   )
 }

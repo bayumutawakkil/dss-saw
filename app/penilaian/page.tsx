@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
 import type { Kriteria, Alternatif, Penilaian } from '@/lib/supabase'
 import ProtectedPage from '@/components/ProtectedPage'
 import PageHeader from '@/components/ui/PageHeader'
@@ -9,11 +9,8 @@ import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Alert from '@/components/ui/Alert'
 import EmptyState from '@/components/ui/EmptyState'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { useAuth } from '@/lib/auth-context'
+import LoadingSkeleton from '@/components/ui/LoadingSkeleton'
 
 export default function PenilaianPage() {
   const [kriteriaList, setKriteriaList] = useState<Kriteria[]>([])
@@ -65,24 +62,36 @@ export default function PenilaianPage() {
     setSaving(true)
     setMessage(null)
     try {
-      // First delete all existing penilaian
-      await supabase.from('penilaian').delete().gt('id', 0)
-
-      // Then insert all current scores
-      const inserts = []
+      // Build upsert payload for all current scores
+      const upserts = []
       for (const [key, nilai] of Object.entries(penilaianMap)) {
         const [altId, kriId] = key.split('-').map(Number)
         if (nilai > 0) {
-          inserts.push({
-            alternatif_id: altId,
-            kriteria_id: kriId,
-            nilai,
-          })
+          upserts.push({ alternatif_id: altId, kriteria_id: kriId, nilai })
         }
       }
 
-      if (inserts.length > 0) {
-        const { error } = await supabase.from('penilaian').insert(inserts)
+      // Delete rows that are now zero/empty (removed by user)
+      const activeKeys = new Set(
+        upserts.map((u) => `${u.alternatif_id}-${u.kriteria_id}`)
+      )
+      const keysToDelete = Object.keys(penilaianMap).filter(
+        (k) => !activeKeys.has(k)
+      )
+      for (const key of keysToDelete) {
+        const [altId, kriId] = key.split('-').map(Number)
+        await supabase
+          .from('penilaian')
+          .delete()
+          .eq('alternatif_id', altId)
+          .eq('kriteria_id', kriId)
+      }
+
+      // Upsert remaining scores atomically
+      if (upserts.length > 0) {
+        const { error } = await supabase
+          .from('penilaian')
+          .upsert(upserts, { onConflict: 'alternatif_id,kriteria_id' })
         if (error) throw error
       }
 
@@ -97,6 +106,7 @@ export default function PenilaianPage() {
   }
 
   const canSave = alternatifList.length > 0 && kriteriaList.length > 0
+  const { isGuest } = useAuth()
 
   return (
     <ProtectedPage>
@@ -114,7 +124,7 @@ export default function PenilaianPage() {
         }
       />
 
-      <div className="px-8 pb-8">
+      <div className="px-4 md:px-8 pb-8">
         {message && (
           <div className="mb-6">
             <Alert
@@ -127,15 +137,7 @@ export default function PenilaianPage() {
 
         {loading ? (
           <Card>
-            <div className="py-12 text-center">
-              <div className="inline-block">
-                <svg className="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              </div>
-              <p className="mt-3 text-slate-600">Memuat data...</p>
-            </div>
+            <LoadingSkeleton count={4} height="md" />
           </Card>
         ) : !canSave ? (
           <Card>
@@ -156,13 +158,13 @@ export default function PenilaianPage() {
         ) : (
           <>
             <Card className="mb-6">
-              <div className="mb-4 flex items-start gap-3 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-100 dark:border-blue-800">
+                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
                 <div>
-                  <p className="font-semibold text-blue-900">Petunjuk Input</p>
-                  <p className="text-sm text-blue-800 mt-1">Masukkan skor evaluasi dari 0 hingga 5 untuk setiap kombinasi alternatif dan kriteria. Nilai akan digunakan untuk perhitungan normalisasi dan scoring SAW.</p>
+                  <p className="font-semibold text-blue-900 dark:text-blue-300">Petunjuk Input</p>
+                  <p className="text-sm text-blue-800 dark:text-blue-400 mt-1">Masukkan skor evaluasi dari 0 hingga 5 untuk setiap kombinasi alternatif dan kriteria. Nilai akan digunakan untuk perhitungan normalisasi dan scoring SAW.</p>
                 </div>
               </div>
             </Card>
@@ -172,7 +174,6 @@ export default function PenilaianPage() {
                 <h2 className="text-xl font-bold text-slate-800">Tabel Matriks Keputusan (X)</h2>
                 <p className="text-sm text-slate-600 mt-1">{alternatifList.length} alternatif × {kriteriaList.length} kriteria</p>
               </div>
-
               <div className="overflow-x-auto -mx-6 px-6">
                 <table className="w-full text-sm">
                   <thead>
@@ -224,11 +225,17 @@ export default function PenilaianPage() {
                 </table>
               </div>
 
-              <div className="mt-8 flex gap-3 border-t border-slate-100 pt-6">
+              <div className="mt-8 flex flex-wrap gap-3 border-t border-slate-100 pt-6">
+                {isGuest && (
+                  <Alert
+                    type="info"
+                    message="Mode tamu hanya dapat melihat data. Login sebagai admin untuk menyimpan perubahan."
+                  />
+                )}
                 <Button
                   onClick={handleSave}
                   loading={saving}
-                  disabled={!canSave}
+                  disabled={!canSave || isGuest}
                   size="lg"
                   icon={
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

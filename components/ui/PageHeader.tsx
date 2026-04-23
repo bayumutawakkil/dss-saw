@@ -16,21 +16,21 @@ export default function PageHeader({
   icon,
 }: PageHeaderProps) {
   return (
-    <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border-b border-indigo-100 px-8 py-6 mb-8">
+    <div className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-slate-800 dark:to-slate-800 border-b border-indigo-100 dark:border-slate-700 px-4 py-4 md:px-8 md:py-6 mb-6 md:mb-8">
       {/* Breadcrumbs */}
       {breadcrumbs && (
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
           {breadcrumbs.map((crumb, idx) => (
             <React.Fragment key={idx}>
               {crumb.href ? (
-                <a href={crumb.href} className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+                <a href={crumb.href} className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 font-medium">
                   {crumb.label}
                 </a>
               ) : (
-                <span className="text-sm text-slate-600 font-medium">{crumb.label}</span>
+                <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">{crumb.label}</span>
               )}
               {idx < breadcrumbs.length - 1 && (
-                <span className="text-slate-400">/</span>
+                <span className="text-slate-400 dark:text-slate-600">/</span>
               )}
             </React.Fragment>
           ))}
@@ -38,21 +38,21 @@ export default function PageHeader({
       )}
 
       {/* Header Content */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-4 flex-1">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+        <div className="flex items-start gap-3 flex-1">
           {icon && (
-            <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center flex-shrink-0">
               {icon}
             </div>
           )}
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">{title}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">{title}</h1>
             {description && (
-              <p className="text-slate-600 mt-1">{description}</p>
+              <p className="text-sm md:text-base text-slate-600 dark:text-slate-400 mt-1">{description}</p>
             )}
           </div>
         </div>
-        {actions && <div className="flex gap-3">{actions}</div>}
+        {actions && <div className="flex gap-3 flex-wrap">{actions}</div>}
       </div>
     </div>
   )

@@ -2,26 +2,132 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
+
+/* =============================================================
+   DARK MODE — Global text color overrides
+   Strategy: remap text-slate-* to light equivalents.
+   Exceptions: elements with a specific colored background
+   (badges, colored cards, alert boxes, podium cards) are
+   excluded via :not() so their contrast is preserved.
+   ============================================================= */
+
+/* Utility: anything that carries its own colored bg should be
+   excluded from the blanket text overrides below.
+   We target the "neutral" slate text classes only. */
+
+/* --- Primary content text (headings, bold labels) --- */
+.dark .text-slate-950 { color: #f8fafc !important; }
+.dark .text-slate-900 { color: #f8fafc !important; }
+.dark .text-slate-800 { color: #f1f5f9 !important; }
+
+/* --- Secondary / body text --- */
+.dark .text-slate-700 { color: #e2e8f0 !important; }
+.dark .text-slate-600 { color: #cbd5e1 !important; }
+
+/* --- Muted / caption text --- */
+.dark .text-slate-500 { color: #94a3b8 !important; }
+.dark .text-slate-400 { color: #64748b !important; }
+
+/* --- Indigo text used for scores / links --- */
+.dark .text-indigo-900 { color: #a5b4fc !important; }
+
+/* =============================================================
+   EXCEPTIONS — restore original colors for elements that sit
+   on a colored background (badges, pills, alert boxes, cards).
+   These selectors are more specific so they win over the rules above.
+   ============================================================= */
+
+/* Emerald badges / status pills */
+.dark .bg-emerald-100 .text-emerald-700,
+.dark .bg-emerald-100.text-emerald-700,
+.dark span.text-emerald-700 { color: #047857 !important; }
+
+/* Rose / cost badges */
+.dark .bg-rose-100 .text-rose-700,
+.dark .bg-rose-100.text-rose-700,
+.dark span.text-rose-700 { color: #be123c !important; }
+
+/* Indigo badges (C1, C2 labels, bobot pills) */
+.dark .bg-indigo-100 .text-indigo-600,
+.dark .bg-indigo-100.text-indigo-600,
+.dark .bg-indigo-50 .text-indigo-600 { color: #4f46e5 !important; }
+.dark .bg-indigo-100 .text-indigo-700,
+.dark .bg-indigo-50 .text-indigo-700 { color: #4338ca !important; }
+
+
+/* Emerald / amber status card text (kriteria page bobot card)
+   — removed: these now use dark: variants directly in JSX */
+
+/* Blue info box (penilaian petunjuk) — now uses dark: variants directly in JSX */
+
+/* Leaderboard podium cards — now use dark: variants directly in JSX */
+
+/* Leaderboard result table — now handled via getRowBg() function in JSX */
+
+/* Rank badge styles in laporan (gold/silver/bronze) */
+.dark .bg-yellow-50 .text-yellow-600 { color: #d97706 !important; }
+.dark .bg-orange-50 .text-orange-800 { color: #9a3412 !important; }
+
+/* =============================================================
+   TABLE — ensure all table text is light in dark mode
+   ============================================================= */
+.dark table td,
+.dark table th {
+  color: #e2e8f0;
+}
+
+/* Sticky first-column cells that use bg-slate-50 */
+.dark td.bg-slate-50,
+.dark th.bg-slate-50 {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+/* Table header row bg */
+.dark .bg-slate-50 {
+  background-color: #1e293b !important;
+}
+
+/* Table row dividers */
+.dark .divide-slate-100 > * + * { border-color: #334155; }
+.dark .divide-y > * + *         { border-color: #334155; }
+.dark .divide-y-2 > * + *       { border-color: #334155; }
+
+/* Table borders */
+.dark .border-slate-200 { border-color: #334155 !important; }
+.dark .border-slate-100 { border-color: #1e293b !important; }
+
+/* Hover row */
+.dark .hover\:bg-slate-50:hover { background-color: #1e293b !important; }
+
+/* =============================================================
+   SURFACES
+   ============================================================= */
+
+/* General bg-slate-100 surfaces (progress bar track, code bg) */
+.dark .bg-slate-100 { background-color: #334155 !important; }
+
+/* Dashboard quick-link cards (bg-white with text) */
+.dark .bg-white {
+  background-color: #1e293b !important;
+}
+
+/* Leaderboard bobot kriteria pill bg — now uses dark: variants directly in JSX */
+
+/* =============================================================
+   INPUTS
+   ============================================================= */
+.dark input[type="number"],
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"] {
+  background-color: #1e293b;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+.dark input::placeholder { color: #64748b; }
