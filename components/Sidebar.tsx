@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import LogoutButton from './auth/LogoutButton'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 type NavItem = {
   href: string
@@ -82,127 +82,177 @@ export default function Sidebar() {
   const pathname = usePathname()
   const { user, isGuest, loading, signOut } = useAuth()
   const router = useRouter()
+  
+  // State untuk mengontrol buka/tutup sidebar di mobile
+  const [isOpen, setIsOpen] = useState(false)
 
-  // Guest allowed routes
   const guestAllowedRoutes = ['/', '/laporan', '/penilaian', '/leaderboard', '/tentang']
 
-  // Redirect to login if not authenticated and not on auth pages
   useEffect(() => {
     if (!loading && !user && !isGuest && !pathname.startsWith('/auth')) {
       router.push('/auth/login')
     }
+    // Menutup sidebar otomatis saat berpindah halaman di mobile
+    setIsOpen(false)
   }, [user, isGuest, loading, pathname, router])
 
-  // Don't show sidebar on auth pages
   if (pathname.startsWith('/auth')) {
     return null
   }
 
-  // Filter nav items based on user type
   const filteredNavItems = isGuest 
     ? navItems.filter(item => guestAllowedRoutes.includes(item.href))
     : navItems
 
   return (
-    <aside className="sticky top-0 h-screen flex flex-col w-64 bg-gradient-to-b from-blue-900 to-blue-950 text-white shadow-xl overflow-y-auto">
-      {/* Logo / Judul */}
-      <div className="px-6 py-6 border-b border-blue-800">
+    <>
+      {/* HEADER MOBILE: Hanya muncul di layar kecil (< md) */}
+      <header className="md:hidden fixed top-0 left-0 right-0 z-50 bg-blue-950 text-white px-4 h-16 flex items-center justify-between border-b border-blue-800 shadow-md">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
             </svg>
           </div>
-          <div>
-            <p className="text-sm font-bold leading-tight tracking-wide text-white">SPK SAW</p>
-            <p className="text-[11px] text-blue-300 leading-tight">Sistem Penunjang Keputusan</p>
+          <span className="font-bold tracking-wide text-sm">SPK SAW</span>
+        </div>
+        
+        <button 
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-2 rounded-md hover:bg-blue-800 transition-colors focus:outline-none"
+          aria-label="Toggle Menu"
+        >
+          {isOpen ? (
+            <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="w-6 h-6 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+          )}
+        </button>
+      </header>
+
+      {/* BACKDROP: Background gelap saat menu mobile terbuka */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm transition-opacity duration-300"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* ASIDE / SIDEBAR UTAMA */}
+      <aside className={`
+        fixed inset-y-0 left-0 z-40 w-64 bg-gradient-to-b from-blue-900 to-blue-950 text-white shadow-2xl 
+        transform transition-transform duration-300 ease-in-out flex flex-col
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
+        md:translate-x-0 md:sticky md:h-screen md:top-0
+      `}>
+        
+        {/* Logo Section (Hanya tampil di Desktop) */}
+        <div className="hidden md:block px-6 py-8 border-b border-blue-800/50">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center shrink-0 shadow-lg shadow-cyan-500/20">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <div>
+              <p className="text-base font-bold leading-tight tracking-wide">SPK SAW</p>
+              <p className="text-[11px] text-blue-300 leading-tight">Sistem Penunjang Keputusan</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Label seksi */}
-      <div className="px-6 pt-5 pb-2">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-blue-400">Menu Utama</p>
-      </div>
+        {/* Spacer untuk header mobile agar konten tidak tertutup */}
+        <div className="h-16 md:hidden"></div>
 
-      {/* Navigasi */}
-      <nav className="flex-1 px-3 space-y-1">
-        {filteredNavItems.map((item) => {
-          const isActive =
-            item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
+        {/* Section Label */}
+        <div className="px-6 pt-8 pb-3">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400/80">Menu Utama</p>
+        </div>
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
-                isActive
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-md'
-                  : 'text-blue-300 hover:bg-blue-800/50 hover:text-cyan-300'
-              }`}
-            >
-              <span className={isActive ? 'text-cyan-300' : 'text-blue-400'}>{item.icon}</span>
-              {item.label}
-            </Link>
-          )
-        })}
-      </nav>
+        {/* Navigation Links */}
+        <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">
+          {filteredNavItems.map((item) => {
+            const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
 
-      {/* Footer sidebar */}
-      <div className="px-6 py-4 border-t border-blue-800">
-        {loading ? (
-          <div className="text-xs text-blue-400">Loading...</div>
-        ) : isGuest ? (
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-500/50 flex items-center justify-center shrink-0">
-                <svg className="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-cyan-300 truncate">
-                  Tamu
-                </p>
-                <p className="text-[10px] text-blue-400 truncate">Guest User</p>
-              </div>
-            </div>
-            <button
-              onClick={async () => {
-                await signOut()
-                router.push('/auth/login')
-              }}
-              className="w-full px-3 py-2 text-sm font-medium text-center text-white bg-red-600/80 hover:bg-red-600 rounded-lg transition duration-200"
-            >
-              Keluar
-            </button>
-          </div>
-        ) : user ? (
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center shrink-0">
-                <span className="text-sm font-semibold text-white">
-                  {user.email?.[0].toUpperCase() || 'U'}
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                  isActive
+                    ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shadow-inner shadow-cyan-500/10'
+                    : 'text-blue-200/70 hover:bg-blue-800/40 hover:text-cyan-200'
+                }`}
+              >
+                <span className={`transition-colors duration-200 ${isActive ? 'text-cyan-400' : 'text-blue-400 group-hover:text-cyan-300'}`}>
+                  {item.icon}
                 </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-slate-200 truncate">
-                  {user.user_metadata?.full_name || user.email}
-                </p>
-                <p className="text-[10px] text-blue-300 truncate">{user.email}</p>
-              </div>
+                {item.label}
+              </Link>
+            )
+          })}
+        </nav>
+
+        {/* Footer Sidebar: Profil & Logout */}
+        <div className="p-4 border-t border-blue-800/50 bg-blue-950/30">
+          {loading ? (
+            <div className="flex items-center justify-center py-2">
+              <div className="w-5 h-5 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin"></div>
             </div>
-            <LogoutButton />
-          </div>
-        ) : (
-          <Link
-            href="/auth/login"
-            className="block px-3 py-2 text-sm font-medium text-center text-white bg-cyan-600 hover:bg-cyan-700 rounded-lg transition duration-200"
-          >
-            Login
-          </Link>
-        )}
-      </div>
-    </aside>
+          ) : isGuest ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 px-2">
+                <div className="w-9 h-9 rounded-full bg-blue-800/50 border border-blue-700 flex items-center justify-center">
+                   <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                   </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-blue-100">Mode Tamu</p>
+                  <p className="text-[10px] text-blue-400 truncate">Akses Terbatas</p>
+                </div>
+              </div>
+              <button
+                onClick={async () => {
+                  await signOut()
+                  router.push('/auth/login')
+                }}
+                className="w-full py-2.5 text-xs font-bold text-red-400 hover:text-white bg-red-500/10 hover:bg-red-600 rounded-xl transition-all duration-200 border border-red-500/20"
+              >
+                Keluar Sesi
+              </button>
+            </div>
+          ) : user ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 px-2">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                  <span className="text-sm font-bold text-white uppercase">
+                    {user.email?.[0]}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-blue-50 text-ellipsis overflow-hidden">
+                    {user.user_metadata?.full_name || 'Administrator'}
+                  </p>
+                  <p className="text-[10px] text-blue-400 truncate">{user.email}</p>
+                </div>
+              </div>
+              <LogoutButton />
+            </div>
+          ) : (
+            <Link
+              href="/auth/login"
+              className="block w-full py-2.5 text-center text-xs font-bold text-white bg-cyan-600 hover:bg-cyan-500 rounded-xl transition-all shadow-lg shadow-cyan-600/20"
+            >
+              Masuk Akun
+            </Link>
+          )}
+        </div>
+      </aside>
+    </>
   )
 }

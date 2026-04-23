@@ -7,6 +7,8 @@ import ProtectedPage from '@/components/ProtectedPage'
 import PageHeader from '@/components/ui/PageHeader'
 import Card from '@/components/ui/Card'
 
+
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -28,6 +30,7 @@ export default function LaporanPage() {
   const [loading, setLoading] = useState(true)
   const [showNormalized, setShowNormalized] = useState(false)
   const [showResults, setShowResults] = useState(false)
+  
 
   useEffect(() => {
     const loadData = async () => {
@@ -115,7 +118,16 @@ export default function LaporanPage() {
   }
 
   const results = calculateResults()
-  const medals = ['🥇 1st', '🥈 2nd', '🥉 3rd']
+
+  // Ambil angka Maksimum Global untuk semua kriteria Benefit
+  const globalMax = kriteria.some(k => k.jenis === 'benefit')
+    ? Math.max(...results.flatMap(r => r.rawScores.filter((_, i) => kriteria[i].jenis === 'benefit')))
+    : 0;
+
+  // Ambil angka Minimum Global untuk semua kriteria Cost
+  const costScores = results.flatMap(r => r.rawScores.filter((_, i) => kriteria[i].jenis === 'cost')).filter(v => v > 0);
+  const globalMin = costScores.length > 0 ? Math.min(...costScores) : 0;
+  
 
   if (loading) {
     return (
@@ -131,9 +143,9 @@ export default function LaporanPage() {
         title="Laporan Hasil Keputusan"
         description="Hasil evaluasi algoritma Simple Additive Weighting (SAW) berdasarkan data matriks terkini"
         icon={
-          <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m32 4v-2a4 4 0 00-4-4h-5a4 4 0 00-4 4v2m12-9a4 4 0 11-8 0 4 4 0 018 0zM9 3h.01M21 21h.01M3 21h.01M12 3h.01" />
-          </svg>
+          <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      </svg>
         }
       />
 
@@ -148,17 +160,23 @@ export default function LaporanPage() {
           <div className="overflow-x-auto -mx-6 px-6">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="px-5 py-4 text-left text-xs font-bold text-slate-900 uppercase tracking-wider min-w-56">
-                    Alternatif
-                  </th>
-                  {kriteria.map((k) => (
-                    <th key={k.id} className="px-4 py-4 text-center text-xs font-bold text-slate-900 uppercase tracking-wider">
-                      C{k.id}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
+                    <tr className="border-b border-slate-200">
+                      <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider min-w-56 bg-slate-50">
+                        Alternatif
+                      </th>
+                      {kriteria.map((k) => (
+                        <th key={k.id} className="px-3 py-4 text-center min-w-28 bg-slate-50">
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="text-xs font-bold text-slate-700">C{k.id}</span>
+                            <span className="text-[10px] text-slate-500 font-normal break-words max-w-20">{k.nama_kriteria}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${k.jenis === 'benefit' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                              {k.bobot}
+                            </span>
+                          </div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
               <tbody className="divide-y divide-slate-100 text-slate-950">
                 {results.map((r) => (
                   <tr key={r.alternatifId} className="hover:bg-slate-50 transition-colors">
@@ -172,20 +190,58 @@ export default function LaporanPage() {
                     ))}
                   </tr>
                 ))}
-                <tr className="bg-slate-900 text-white font-bold">
-                  <td className="px-5 py-4 text-xs uppercase tracking-wider">Nilai Maksimal (Max)</td>
-                  {kriteria.map((_, kriIdx) => {
-                    let max = 0
-                    results.forEach((r) => {
-                      if (r.rawScores[kriIdx] > max) max = r.rawScores[kriIdx]
-                    })
-                    return (
-                      <td key={kriIdx} className="px-4 py-4 text-center font-bold">
-                        {max.toFixed(2)}
-                      </td>
-                    )
-                  })}
-                </tr>
+                <tr className="border-t-4 border-slate-100 bg-slate-50/30">
+  <td className="px-5 py-6">
+    <div className="flex flex-col">
+      <span className="font-semibold text-slate-950">
+        Nilai Target
+      </span>
+    </div>
+  </td>
+  
+  {kriteria.map((k, kriIdx) => {
+    // Logika perhitungan nilai target (Tetap sama)
+    let targetValue = 0;
+    if (k.jenis === 'benefit') {
+      results.forEach((r) => {
+        if (r.rawScores[kriIdx] > targetValue) targetValue = r.rawScores[kriIdx];
+      });
+    } else {
+      let min = Infinity;
+      results.forEach((r) => {
+        if (r.rawScores[kriIdx] > 0 && r.rawScores[kriIdx] < min) {
+          min = r.rawScores[kriIdx];
+        }
+      });
+      targetValue = min === Infinity ? 0 : min;
+    }
+
+    const isBenefit = k.jenis === 'benefit';
+
+    return (
+      <td key={kriIdx} className="px-4 py-6 text-center">
+        {/* Kontainer dengan lebar tetap (w-28) agar semua kotak berukuran sama */}
+        <div className={`
+          inline-flex flex-col items-center justify-center 
+          w-28 py-2.5 rounded-lg border
+          ${isBenefit 
+            ? 'bg-emerald-50/50 border-emerald-200 text-emerald-600' 
+            : 'bg-rose-50/50 border-rose-200 text-rose-600'}
+        `}>
+          {/* Label Tipis */}
+          <span className="text-xs font-medium mb-1">
+            {isBenefit ? 'Maximum' : 'Minimum'}
+          </span>
+          
+          {/* Nilai dengan font yang lebih tipis (font-medium/semibold) */}
+          <span className="text-base font-medium tracking-tight">
+            {targetValue.toFixed(2)}
+          </span>
+        </div>
+      </td>
+    );
+  })}
+</tr>
               </tbody>
             </table>
           </div>
@@ -207,25 +263,40 @@ export default function LaporanPage() {
           {showNormalized && (
             <div className="mt-6 space-y-6 animate-in fade-in duration-300">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-xs font-bold text-blue-900 uppercase mb-1 tracking-wider">Rumus Benefit</p>
-                  <p className="text-slate-900 font-semibold italic">Rij = Nilai Mentah / Nilai Maksimal</p>
-                </div>
-                <div className="bg-slate-900 border border-slate-800 rounded-lg p-4">
-                  <p className="text-xs font-bold text-slate-300 uppercase mb-1 tracking-wider">Rumus Cost</p>
-                  <p className="text-white font-semibold italic">Rij = Nilai Minimal / Nilai Mentah</p>
-                </div>
-              </div>
+  {/* Kotak Rumus Benefit */}
+  <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl p-4">
+    <p className="text-[10px] font-medium text-emerald-600 uppercase tracking-widest mb-1">Rumus Benefit</p>
+    <p className="text-slate-600 font-normal italic text-sm">
+      Rij = Nilai Mentah / <span className="font-semibold text-emerald-700 not-italic">{globalMax.toFixed(2)}</span>
+    </p>
+    <p className="text-[9px] text-slate-400 mt-1">*Angka didapat dari nilai maksimal pada matriks penilaian</p>
+  </div>
 
+  {/* Kotak Rumus Cost */}
+  <div className="bg-rose-50/50 border border-rose-100 rounded-xl p-4">
+    <p className="text-[10px] font-medium text-rose-600 uppercase tracking-widest mb-1">Rumus Cost</p>
+    <p className="text-slate-600 font-normal italic text-sm">
+      Rij = <span className="font-semibold text-rose-700 not-italic">{globalMin.toFixed(2)}</span> / Nilai Mentah
+    </p>
+    <p className="text-[9px] text-slate-400 mt-1">*Angka didapat dari nilai minimal pada matriks penilaian</p>
+  </div>
+</div>
               <div className="overflow-x-auto -mx-6 px-6">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-200 bg-slate-50">
-                      <th className="px-5 py-4 text-left text-xs font-bold text-slate-900 uppercase tracking-wider">Alternatif</th>
+                    <tr className="border-b border-slate-200">
+                      <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider min-w-56 bg-slate-50">
+                        Alternatif
+                      </th>
                       {kriteria.map((k) => (
-                        <th key={k.id} className="px-4 py-4 text-center text-xs font-bold text-slate-900 uppercase tracking-wider">
-                          <div>C{k.id}</div>
-                          <div className="text-[10px] font-normal text-slate-600">W: {k.bobot}</div>
+                        <th key={k.id} className="px-3 py-4 text-center min-w-28 bg-slate-50">
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="text-xs font-bold text-slate-700">C{k.id}</span>
+                            <span className="text-[10px] text-slate-500 font-normal break-words max-w-20">{k.nama_kriteria}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${k.jenis === 'benefit' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                              {k.bobot}
+                            </span>
+                          </div>
                         </th>
                       ))}
                     </tr>
@@ -235,7 +306,7 @@ export default function LaporanPage() {
                       <tr key={r.alternatifId} className="hover:bg-slate-50 transition-colors">
                         <td className="px-5 py-4 font-semibold bg-slate-50 border-r border-slate-100">{r.alternatifName}</td>
                         {r.normalizedScores.map((score, idx) => (
-                          <td key={idx} className="px-4 py-4 text-center font-bold text-blue-800">
+                          <td key={idx} className="px-4 py-4 text-center font-bold text-slate-800">
                             {score.toFixed(2)}
                           </td>
                         ))}
@@ -263,67 +334,56 @@ export default function LaporanPage() {
 
           {showResults && (
             <div className="mt-8 space-y-10 animate-in fade-in duration-500">
-              {/* Podium View */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {results.slice(0, 3).map((r, idx) => (
-                  <div
-                    key={r.alternatifId}
-                    className={`rounded-2xl p-8 border-2 border-slate-950 text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
-                      idx === 0 ? 'bg-indigo-50' : 'bg-white'
-                    }`}
-                  >
-                    <div className="text-5xl mb-4">{medals[idx].split(' ')[0]}</div>
-                    <div className="text-sm font-bold text-black uppercase tracking-widest mb-1">
-                      {idx === 0 ? 'Peringkat 1' : `Peringkat ${idx + 1}`}
-                    </div>
-                    <div className="text-xl font-bold text-black mb-3">{r.alternatifName}</div>
-                    <div className="text-4xl font-black text-indigo-900 border-t-2 border-slate-200 pt-3 inline-block">
-                      {r.finalScore.toFixed(4)}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              
 
               {/* Main Result Table */}
               <div className="overflow-x-auto -mx-6 px-6">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-slate-950 text-white text-left">
-                      <th className="px-6 py-5 font-bold uppercase text-xs tracking-wider">Rank</th>
-                      <th className="px-6 py-5 font-bold uppercase text-xs tracking-wider">Alternatif</th>
-                      <th className="px-6 py-5 font-bold uppercase text-xs tracking-wider hidden lg:table-cell">Kalkulasi ∑(W × R)</th>
-                      <th className="px-6 py-5 font-bold uppercase text-xs tracking-wider text-right">Skor Akhir</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y-2 divide-slate-100 text-slate-950 font-medium">
-                    {results.map((r) => {
-                      let calcStr = ''
-                      kriteria.forEach((k, idx) => {
-                        if (idx > 0) calcStr += ' + '
-                        calcStr += `(${k.bobot.toFixed(2)}×${r.normalizedScores[idx].toFixed(2)})`
-                      })
+  <table className="w-full text-sm">
+    <thead>
+      <tr className="border-b border-slate-200 text-left">
+        <th className="px-6 py-5 font-bold uppercase text-xs tracking-wider text-slate-500">Rank</th>
+        <th className="px-6 py-5 font-bold uppercase text-xs tracking-wider text-slate-500">Alternatif</th>
+        <th className="px-6 py-5 font-bold uppercase text-xs tracking-wider text-slate-500 hidden lg:table-cell">Kalkulasi ∑(W × R)</th>
+        <th className="px-6 py-5 font-bold uppercase text-xs tracking-wider text-slate-500 text-right">Skor Akhir</th>
+      </tr>
+    </thead>
+    <tbody className="divide-y-2 divide-slate-100 text-slate-950 font-medium">
+      {results.map((r) => {
+        let calcStr = '';
+        kriteria.forEach((k, idx) => {
+          if (idx > 0) calcStr += ' + ';
+          calcStr += `(${k.bobot.toFixed(2)}×${r.normalizedScores[idx].toFixed(2)})`;
+        });
 
-                      return (
-                        <tr key={r.alternatifId} className="hover:bg-slate-50 transition-colors">
-                          <td className="px-6 py-5">
-                            <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg border-2 border-slate-950 font-bold text-slate-950">
-                              {r.rank}
-                            </span>
-                          </td>
-                          <td className="px-6 py-5 font-bold text-base">{r.alternatifName}</td>
-                          <td className="px-6 py-5 text-xs font-mono text-slate-700 hidden lg:table-cell">
-                            {calcStr}
-                          </td>
-                          <td className="px-6 py-5 text-right">
-                            <span className="text-xl font-black text-indigo-900 border-b-2 border-indigo-200">
-                              {r.finalScore.toFixed(4)}
-                            </span>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
+        // Menentukan warna border dan teks berdasarkan peringkat
+        const rankStyles = 
+          r.rank === 1 ? 'border-yellow-500 text-yellow-600 bg-yellow-50' : // Gold
+          r.rank === 2 ? 'border-slate-400 text-slate-500 bg-slate-50' :   // Silver
+          r.rank === 3 ? 'border-orange-700 text-orange-800 bg-orange-50' : // Bronze
+          'border-slate-950 text-slate-950'; // Default untuk rank > 3
+
+        return (
+          <tr key={r.alternatifId} className="hover:bg-slate-50 transition-colors">
+            <td className="px-6 py-5">
+              {/* Penerapan style dinamis pada lingkaran/kotak rank */}
+              <span className={`inline-flex items-center justify-center w-10 h-10 rounded-lg border-2 font-bold ${rankStyles}`}>
+                {r.rank}
+              </span>
+            </td>
+            <td className="px-6 py-5 font-bold text-base">{r.alternatifName}</td>
+            <td className="px-6 py-5 text-xs font-mono text-slate-700 hidden lg:table-cell">
+              {calcStr}
+            </td>
+            <td className="px-6 py-5 text-right">
+              <span className={`text-xl font-black text-indigo-900 border-b-2 border-indigo-200 ${rankStyles}`}>
+                {r.finalScore.toFixed(4)}
+              </span>
+            </td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
               </div>
             </div>
           )}

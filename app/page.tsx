@@ -167,35 +167,65 @@ export default function DashboardPage() {
           </div>
 
           {topRanked.length === 0 ? (
-            <div className="py-8 text-center text-slate-500">
-              <p className="text-sm">Belum ada data penilaian. Silakan lengkapi data kriteria dan alternatif terlebih dahulu.</p>
+  <div className="py-8 text-center text-slate-500">
+    <p className="text-sm">Belum ada data penilaian. Silakan lengkapi data kriteria dan alternatif terlebih dahulu.</p>
+  </div>
+) : (
+  <div className="space-y-4">
+    {topRanked.map((h, idx) => {
+      // Menentukan peringkat asli (idx + 1)
+      const peringkat = idx + 1;
+
+      return (
+        <div 
+          key={h.alternatif.id} 
+          className="px-6 py-5 flex items-center gap-6 hover:bg-slate-50 rounded-2xl transition-all duration-300 border border-slate-100 hover:border-indigo-100 group"
+        >
+          {/* Lencana Peringkat (1st, 2nd, 3rd) */}
+          <div className="flex-shrink-0">
+            {peringkat === 1 && (
+              <div className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-white text-lg bg-amber-500 shadow-sm shadow-amber-200">
+                1st
+              </div>
+            )}
+            {peringkat === 2 && (
+              <div className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-white text-lg bg-slate-400 shadow-sm shadow-slate-200">
+                2nd
+              </div>
+            )}
+            {peringkat === 3 && (
+              <div className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-white text-lg bg-orange-500 shadow-sm shadow-orange-200">
+                3rd
+              </div>
+            )}
+          </div>
+
+          {/* Informasi Alternatif */}
+          <div className="flex-1">
+            <p className="font-bold text-slate-900 text-lg group-hover:text-indigo-600 transition-colors">
+              {h.alternatif.nama_mata_kuliah}
+            </p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-xs text-slate-500 uppercase tracking-wider font-medium">Skor Akhir:</span>
+              <code className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs font-bold">
+                {h.skorAkhir.toFixed(4)}
+              </code>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {topRanked.map((h, idx) => (
-                <div key={h.alternatif.id} className="px-4 py-4 flex items-center gap-4 hover:bg-slate-50 rounded-lg transition-colors border border-slate-100 hover:border-slate-200">
-                  <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center font-bold text-white text-lg ${
-                    idx === 0 ? 'bg-gradient-to-br from-amber-400 to-amber-500 shadow-md' : 
-                    idx === 1 ? 'bg-gradient-to-br from-slate-400 to-slate-500' : 
-                    'bg-gradient-to-br from-orange-400 to-orange-500'
-                  }`}>
-                    {idx === 0 ? '1st' : idx === 1 ? '2nd' : '3rd'}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-slate-800">{h.alternatif.nama_mata_kuliah}</p>
-                    <p className="text-xs text-slate-500 mt-1">Skor: <code className="bg-slate-100 px-1.5 py-0.5 rounded">{h.skorAkhir.toFixed(4)}</code></p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`text-2xl font-bold font-mono ${
-                      idx === 0 ? 'text-amber-600' : idx === 1 ? 'text-slate-600' : 'text-orange-600'
-                    }`}>
-                      {(h.skorAkhir * 100).toFixed(1)}%
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          </div>
+
+          {/* Persentase Visual */}
+          <div className="text-right">
+            <p className={`text-2xl font-black ${
+              idx === 0 ? 'text-amber-600' : idx === 1 ? 'text-slate-500' : 'text-orange-600'
+            }`}>
+              {(h.skorAkhir * 100).toFixed(1)}%
+            </p>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+)}
         </Card>
 
         {/* Quick Links */}

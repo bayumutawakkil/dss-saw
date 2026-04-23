@@ -26,6 +26,8 @@ const rowBg: Record<number, string> = {
   3: 'bg-orange-50 border-orange-200',
 }
 
+const medals = ['🥇 1st', '🥈 2nd', '🥉 3rd']
+
 export default function LeaderboardPage() {
   const [kriteriaList, setKriteriaList] = useState<Kriteria[]>([])
   const [alternatifList, setAlternatifList] = useState<Alternatif[]>([])
@@ -103,7 +105,76 @@ export default function LeaderboardPage() {
       />
 
       <div className="px-8 pb-8">
+        
+        {/* Podium View */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 mb-6">
+  {hasil.slice(0, 3).map((r, idx) => {
+    // 1. Menentukan warna latar belakang (Background)
+    const bgColorClass = 
+      idx === 0 ? 'bg-yellow-400' : // Gold
+      idx === 1 ? 'bg-slate-300' :  // Silver
+      'bg-orange-400';              // Bronze
+
+    // 2. Menentukan warna teks yang lebih gelap
+    const textColorClass = 
+      idx === 0 ? 'text-yellow-900' : 
+      idx === 1 ? 'text-slate-800' : 
+      'text-orange-950';
+
+    // 3. Menentukan warna shadow saat hover
+    const hoverShadowColorClass = 
+      idx === 0 ? 'hover:shadow-yellow-600/[0.5]' : 
+      idx === 1 ? 'hover:shadow-slate-500/[0.5]' :  
+      'hover:shadow-orange-700/[0.5]';              
+
+    return (
+      <div
+        key={r.alternatif.id}
+        className={`
+          rounded-2xl p-8 text-center 
+          border border-slate-950/10 
+          transition-all duration-300 ease-in-out 
+          
+          /* State Awal: Tanpa Shadow */
+          shadow-none 
+          
+          /* State Hover: Geser sedikit, Munculkan Shadow Ringkas (lg) & Berwarna */
+          hover:-translate-y-1 
+          hover:shadow-lg /* <--- Perubahan di sini, dari 2xl ke lg */
+          ${hoverShadowColorClass}
+          
+          /* Warna Dinamis */
+          ${bgColorClass} 
+          ${textColorClass}
+        `}
+      >
+        {/* Emoji Medali */}
+        <div className="text-5xl mb-4">
+          {medals[idx].split(' ')[0]}
+        </div>
+        
+        {/* Label Peringkat */}
+        <div className={`text-sm font-bold uppercase tracking-widest mb-1 opacity-70`}>
+          {idx === 0 ? 'Peringkat 1' : `Peringkat ${idx + 1}`}
+        </div>
+
+        {/* Nama Mata Kuliah */}
+        <div className="text-xl font-bold mb-3 line-clamp-2 min-h-[3.5rem] flex items-center justify-center">
+          {r.alternatif.nama_mata_kuliah}
+        </div>
+
+        {/* Skor Akhir */}
+        <div className={`text-4xl font-black border-t-2 border-current/20 pt-3 inline-block`}>
+          {r.skorAkhir.toFixed(4)}
+        </div>
+      </div>
+    );
+  })}
+</div>
+
+
         {/* Info bobot kriteria */}
+
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 mb-6">
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Bobot Kriteria</p>
           <div className="flex flex-wrap gap-3">

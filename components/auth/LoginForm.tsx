@@ -72,13 +72,6 @@ export default function LoginForm() {
               Kembali
             </button>
             
-            {/* Logo box identik dengan Sidebar */}
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center mb-4 shadow-lg shadow-cyan-500/20">
-              <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            
             <h1 className="text-3xl font-bold text-slate-900 mb-1">Masuk</h1>
             <p className="text-sm text-slate-600">Gunakan akun Anda untuk mengakses sistem</p>
           </div>
@@ -176,7 +169,7 @@ export default function LoginForm() {
         </div>
 
         <p className="text-xs text-blue-400/60 mt-12 font-medium tracking-wide">
-          © 2026 SPK SAW SYSTEM • ANDALAS UNIVERSITY
+          © 2026 Sistem Penunjang Keputusan Pemilihan Workshop Terbaik • ANDALAS UNIVERSITY
         </p>
       </div>
     </div>
