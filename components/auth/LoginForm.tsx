@@ -137,16 +137,10 @@ export default function LoginForm() {
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
 
       <div className="max-w-md w-full relative z-10 text-center">
-        {/* Ikon Logo Utama identik dengan Sidebar */}
-        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center mx-auto mb-8 shadow-2xl border border-white/20">
-          <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-          </svg>
-        </div>
 
-        <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">Workshop Terbaik</h1>
+        <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">Prioritas dalam Pemilihan Workshop</h1>
         <p className="text-lg text-blue-200 mb-2">Sistem Penunjang Keputusan</p>
-        <p className="text-sm text-blue-400/80 mb-10 font-medium">Simple Additive Weighting</p>
+        <p className="text-sm text-blue-400/80 mb-10 font-medium">Menggunakan Metode Simple Additive Weighting</p>
 
         {/* Action Buttons */}
         <div className="space-y-4">

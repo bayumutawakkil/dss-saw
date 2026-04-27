@@ -4,33 +4,33 @@ import Card from '@/components/ui/Card'
 
 const developers = [
   {
-    name: 'Nama Pengembang 1',
+    name: 'Bayu Mutawakkil',
     role: 'Full Stack Developer',
-    nim: '2210000001',
+    nim: '2411522023',
     avatar: '1',
     color: 'bg-indigo-100 dark:bg-indigo-900/40',
     textColor: 'text-indigo-600 dark:text-indigo-400',
   },
   {
-    name: 'Nama Pengembang 2',
-    role: 'UI/UX Designer',
-    nim: '2210000002',
+    name: 'Alfi Zikri',
+    role: 'Backend Developer' ,
+    nim: '2411521002',
     avatar: '2',
     color: 'bg-emerald-100 dark:bg-emerald-900/40',
     textColor: 'text-emerald-600 dark:text-emerald-400',
   },
   {
-    name: 'Nama Pengembang 3',
-    role: 'Backend Developer',
-    nim: '2210000003',
+    name: 'Wanda Fitriardi',
+    role: 'UI/UX Designer',
+    nim: '2411521004',
     avatar: '3',
     color: 'bg-amber-100 dark:bg-amber-900/40',
     textColor: 'text-amber-600 dark:text-amber-400',
   },
   {
-    name: 'Nama Pengembang 4',
+    name: 'Diva Ramadhani',
     role: 'Database Engineer',
-    nim: '2210000004',
+    nim: '2411521017',
     avatar: '4',
     color: 'bg-purple-100 dark:bg-purple-900/40',
     textColor: 'text-purple-600 dark:text-purple-400',
@@ -94,7 +94,7 @@ export default function TentangPage() {
               Sistem Penunjang Keputusan (SPK) atau <strong className="text-slate-800 dark:text-slate-200">Decision Support System (DSS)</strong> adalah sistem berbasis komputer yang dirancang untuk membantu pengambilan keputusan dengan menyediakan analisis data, model bisnis, dan simulasi.
             </p>
             <p>
-              SPK bertujuan meningkatkan efektivitas pengambilan keputusan dengan memberikan informasi yang terstruktur, akurat, dan relevan — menggabungkan data, model analitis, dan pengetahuan untuk menghasilkan rekomendasi yang objektif.
+              SPK bertujuan meningkatkan efektivitas pengambilan keputusan dengan memberikan informasi yang terstruktur, akurat, dan relevan. SPK menggabungkan data, model analitis, dan pengetahuan untuk menghasilkan rekomendasi yang objektif.
             </p>
           </div>
         </Card>
@@ -297,12 +297,12 @@ export default function TentangPage() {
             <svg className="w-4 h-4 text-blue-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
-            <span className="text-sm text-blue-100">support@spksaw.dev</span>
+            <span className="text-sm text-blue-100">mutawakkilbayu@gmail.com</span>
             <span className="hidden sm:block text-blue-400">·</span>
             <span className="text-xs text-blue-300">Respons dalam 24 jam kerja</span>
           </div>
           <p className="text-xs text-blue-300/60 mt-5 pt-4 border-t border-white/10">
-            © 2026 SPK SAW System · Universitas Andalas
+            © 2026 SPK-Workshop · Universitas Andalas
           </p>
         </div>
 

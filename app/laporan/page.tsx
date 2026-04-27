@@ -314,7 +314,7 @@ export default function LaporanPage() {
           r.rank === 1 ? 'border-yellow-500 text-yellow-600 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-600' :
           r.rank === 2 ? 'border-slate-400 text-slate-500 bg-slate-50 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-500' :
           r.rank === 3 ? 'border-orange-700 text-orange-800 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-600' :
-          'border-slate-400 text-slate-200 dark:border-slate-500 dark:text-slate-300';
+          'border-slate-400 text-slate-800 dark:border-slate-500 dark:text-slate-300';
 
         return (
           <tr key={r.alternatifId} className="hover:bg-slate-50 transition-colors">
@@ -329,7 +329,7 @@ export default function LaporanPage() {
               {calcStr}
             </td>
             <td className="px-6 py-5 text-right">
-              <span className={`text-xl font-black text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-200 dark:border-indigo-700`}>
+              <span className={`text-xl font-black text-slate-600 dark:text-indigo-400 border-b-2 border-indigo-200 dark:border-indigo-700`}>
                 {r.finalScore.toFixed(4)}
               </span>
             </td>
