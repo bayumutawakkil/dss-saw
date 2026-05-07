@@ -31,6 +31,23 @@ export default function AlternatifForm({ onSuccess, editingItem }: AlternatifFor
         return
       }
 
+      // Cek duplikasi nama mata kuliah
+      const { data: existingAlternatif, error: checkError } = await supabase
+        .from('alternatif')
+        .select('id, nama_mata_kuliah')
+        .ilike('nama_mata_kuliah', namaMataKuliah.trim())
+
+      if (checkError) throw checkError
+
+      if (existingAlternatif && existingAlternatif.length > 0) {
+        // Jika edit, pastikan bukan data yang sama
+        if (!editingItem || existingAlternatif.some(a => a.id !== editingItem.id)) {
+          setError(`Mata kuliah "${namaMataKuliah}" sudah ada. Gunakan nama yang berbeda.`)
+          setLoading(false)
+          return
+        }
+      }
+
       if (editingItem) {
         const { error: updateError } = await supabase
           .from('alternatif')

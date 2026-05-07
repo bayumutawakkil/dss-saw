@@ -41,6 +41,49 @@ export default function KriteriaForm({ onSuccess, editingItem }: KriteriaFormPro
         return
       }
 
+      // Cek duplikasi nama kriteria
+      const { data: existingKriteria, error: checkError } = await supabase
+        .from('kriteria')
+        .select('id, nama_kriteria')
+        .ilike('nama_kriteria', namaKriteria.trim())
+
+      if (checkError) throw checkError
+
+      if (existingKriteria && existingKriteria.length > 0) {
+        // Jika edit, pastikan bukan data yang sama
+        if (!editingItem || existingKriteria.some(k => k.id !== editingItem.id)) {
+          setError(`Kriteria dengan nama "${namaKriteria}" sudah ada. Gunakan nama yang berbeda.`)
+          setLoading(false)
+          return
+        }
+      }
+
+      // Cek total bobot setelah penambahan/update
+      const { data: allKriteria, error: fetchError } = await supabase
+        .from('kriteria')
+        .select('id, bobot')
+
+      if (fetchError) throw fetchError
+
+      let totalBobot = 0
+      if (allKriteria) {
+        totalBobot = allKriteria.reduce((sum, k) => {
+          // Jika edit, skip bobot lama dari item yang sedang diedit
+          if (editingItem && k.id === editingItem.id) return sum
+          return sum + k.bobot
+        }, 0)
+      }
+
+      // Tambahkan bobot baru
+      totalBobot += bobotNum
+
+      // Validasi total bobot tidak boleh lebih dari 1
+      if (totalBobot > 1.001) { // Toleransi kecil untuk floating point
+        setError(`Total bobot akan menjadi ${totalBobot.toFixed(3)} (melebihi 1.00). Kurangi bobot atau sesuaikan kriteria lain terlebih dahulu.`)
+        setLoading(false)
+        return
+      }
+
       if (editingItem) {
         const { error: updateError } = await supabase
           .from('kriteria')

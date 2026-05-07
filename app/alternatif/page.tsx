@@ -21,15 +21,18 @@ export default function AlternatifPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showFormModal, setShowFormModal] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<Alternatif | null>(null)
+  const [errorMessage, setErrorMessage] = useState('')
 
   const loadAlternatif = async () => {
     setLoading(true)
+    setErrorMessage('')
     try {
       const { data, error } = await supabase.from('alternatif').select('*').order('id')
       if (error) throw error
       setAlternatifList(data ?? [])
     } catch (err) {
       console.error(err)
+      setErrorMessage(err instanceof Error ? err.message : 'Gagal memuat data alternatif')
     } finally {
       setLoading(false)
     }
@@ -48,6 +51,7 @@ export default function AlternatifPage() {
     if (!itemToDelete) return
     
     setDeletingId(itemToDelete.id)
+    setErrorMessage('')
     try {
       const { error } = await supabase.from('alternatif').delete().eq('id', itemToDelete.id)
       if (error) throw error
@@ -56,7 +60,8 @@ export default function AlternatifPage() {
       setItemToDelete(null)
     } catch (err) {
       console.error(err)
-      alert('Gagal menghapus data')
+      setErrorMessage(err instanceof Error ? err.message : 'Gagal menghapus data alternatif')
+      setShowDeleteModal(false)
     } finally {
       setDeletingId(null)
     }
@@ -95,6 +100,13 @@ export default function AlternatifPage() {
       />
 
       <div className="px-4 md:px-8 pb-8">
+
+        {/* Error Alert */}
+        {errorMessage && (
+          <div className="mb-6">
+            <Alert type="error" message={errorMessage} onClose={() => setErrorMessage('')} />
+          </div>
+        )}
 
         {/* Data Alternatif */}
         <Card>

@@ -21,15 +21,18 @@ export default function KriteriaPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showFormModal, setShowFormModal] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<Kriteria | null>(null)
+  const [errorMessage, setErrorMessage] = useState('')
 
   const loadKriteria = async () => {
     setLoading(true)
+    setErrorMessage('')
     try {
       const { data, error } = await supabase.from('kriteria').select('*').order('id')
       if (error) throw error
       setKriteriaList(data ?? [])
     } catch (err) {
       console.error(err)
+      setErrorMessage(err instanceof Error ? err.message : 'Gagal memuat data kriteria')
     } finally {
       setLoading(false)
     }
@@ -48,6 +51,7 @@ export default function KriteriaPage() {
     if (!itemToDelete) return
     
     setDeletingId(itemToDelete.id)
+    setErrorMessage('')
     try {
       const { error } = await supabase.from('kriteria').delete().eq('id', itemToDelete.id)
       if (error) throw error
@@ -56,7 +60,8 @@ export default function KriteriaPage() {
       setItemToDelete(null)
     } catch (err) {
       console.error(err)
-      alert('Gagal menghapus data')
+      setErrorMessage(err instanceof Error ? err.message : 'Gagal menghapus data kriteria')
+      setShowDeleteModal(false)
     } finally {
       setDeletingId(null)
     }
@@ -98,6 +103,13 @@ export default function KriteriaPage() {
       />
 
       <div className="px-4 md:px-8 pb-8">
+
+        {/* Error Alert */}
+        {errorMessage && (
+          <div className="mb-6">
+            <Alert type="error" message={errorMessage} onClose={() => setErrorMessage('')} />
+          </div>
+        )}
 
         {/* Validasi total bobot */}
         <Card className="mb-6">
